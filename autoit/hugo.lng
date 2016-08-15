@@ -1,0 +1,172 @@
+[Base]
+Error=Fehler
+Warning=Warnung
+Tip=Tipp
+
+[EEP]
+EEP_NOT_FOUND=Kann Eisenbahn.exe nicht finden
+EEP_NOT_SUPPORTED=EEP-Version nicht unterstützt
+EEPX_NOT_FOUND=Kann Version 10 von Eisenbahn.exe nicht finden (Vorgabe in INI-Datei prüfen)
+EEP11_NOT_FOUND=Kann Version 11 von Eisenbahn.exe nicht finden (Vorgabe in INI-Datei prüfen)
+START_BEFORE=Starte EEP vor dem Start von Hugo!
+MANY_EEPS_FOUND=Mehr als eine EEP-Version gefunden, Vorgabe in INI-Datei setzen
+NOT_STARTED=Eisenbahn.exe läuft nicht (Starte EEP und lade Anlage vor Hugo-Start)
+EDITOR_NOT_DETECTED=Editor-Control nicht erkannt
+NO_WINDOW=Eigenschaftsfenster nicht gefunden
+NO_TRACK_EDITOR=Kein Fahrweg-Editor aktiv
+NO_OBJ_EDITOR=Kein Objekt-Editor aktiv
+TRACK_TOO_LONG=Gleis zu lang:
+TRACK_TOO_LONG2=(Gleisanzahl erhöhen?)
+TRACK_TOO_SHORT=Gleis zu kurz:
+TRACK_TOO_SHORT2=(Gleisanzahl erniedrigen?)
+NO_TRACK_BUTTON=Schaltfläche nicht erkannt
+
+[GUI]
+TabTrack=Gleis
+TabTrack2=Gleis 2
+TabCombi=G-Kombi
+TabImmo=Objekt
+TabSignal=Signal
+TabTT=Fahrplan
+TabOption=Opt
+Opt=Einstellungen
+Quit=Ende|Beendet Hugo, aber nicht EEP
+AutoOk=Auto OK|Dialoge zum Speichern automatisch mit OK bestätigen
+RasterOk=Raster-Warnung OK|Warnung bezüglich Rastergröße automatisch mit OK bestätigen
+GeneralOptions=Allg. Einstellungen|Einstellungen
+Back=Zurück
+Clock=Stoppuhr
+NeedsRestart=Einstellung erfordert Neustart von Hugo
+Please=Bitte
+Wait=Warten
+wrongHotkey=Falsche Hotkey-Definition
+wrongAction=Falsche Hotkey-Aktion
+
+[TrackTab]
+LengthIs=Länge %6.0f m
+LengthRange=Länge %.0f ... %.0f m
+LengthUnknown=Länge ??? m
+RadiusIs=min. Rad. %6.0f m
+RadiusUnknown=Min. Radius ??? m
+Tracks=Gleise|Anzahl der Gleisstücke der Verbindung
+before=Gleis davor|Das Gleis, an das die neue Verbindung ansetzen soll
+inverse=invers|Das Gleis weist in die entgegengesetzte Richtung
+after=Gleis danach|Das Gleis, das sich an die neue Verbindung anschließt
+PutTracks=Gleis legen|Verlegen der neuen Verbindung
+Levelling=planieren|Geländehöhe an das verlegte Gleis anpassen
+2Tracks=zweigleisig|Verlegen eines zweiten Gleises
+Stub=Messgleis|Gleis dient nur der Vermessung und wird nach dem Vermessen entfernt
+Height=Höhe|Vorgabe der Höhe
+HeightRel=Höhe relativ|Höhenangabe ist Änderung der Originalhöhe
+SetHeight=Höhe setzen|Gleis auf neue Höhe setzen
+Replace=Neu setzen|Selektiertes Gleis wird im aktuellen Stil neu gesetzt
+ReplaceInverse=Umdrehen|Gleis wird beim Neusetzen umgedreht
+ReplaceRemove=Entfernen|Original-Gleis entfernen
+ReplaceChangeEditor=Editorwechsel|Wechselt vor dem Neusetzen den Editor
+Optimization=Optimierung|Optimierungs-Parameter des Gleis
+Construction=Konstruktion|Verschiedene Konstruktions-Modi
+Optimization1=Optimierung 1|Optimierung auf geringe Änderung der Krümmung
+Optimization2=Optimierung 2|Optimierung auf geringe Krümmung
+Construction_line_circle=Kreis+Gerade|Konstruktion aus Kreis und Gerade
+Construction_line_circle_line=Gerade+Kreis+Gerade|Konstruktion aus Gerade, Kreis und Gerade
+Construction_circle_line_circle=Kreis+Gerade+Kreis|Konstruktion aus Kreis, Gerade und Kreis
+maxlen=Maximale Gleislänge
+Rad=Radius
+angle=Winkel
+dir=Richtung
+length=Länge
+x=x
+y=y
+height1=Höhe
+ShiftX=Seitliche Verschiebung|Verschiebung nach rechts ist positiv
+ShiftH=Höhenverschiebung
+Sanft=Sanfte Steigung|Sanfter Übergang auf Steigungen
+TrackNumber=%d Gleise
+TrackNumberUnknown=??? Gleise
+
+[CombiTab]
+GetPos=Position
+Set=Setzen
+Dir0=
+Dir1=
+Dir2=
+Dir3=
+Dir4=
+Dir5=
+Up=^
+Right=>
+Left=<
+Down=V
+Length=Länge
+Width=Gleisabstand
+
+[ImmoTab]
+GetPos=Position|Objekt vermessen
+x=Pos.X
+y=Pos.Y
+z=Pos.Z
+anglex=Drehung X
+angley=Drehung Y
+anglez=Drehung Z
+DeltaX=d X|X - Verschiebung
+DeltaY=d Y|y - Verschiebung
+DeltaZ=d Z|Vertikale Verschiebung
+North=Nord
+South=Süd
+West=West
+East=Ost
+Up=Hoch
+Down=Runter
+SetPos=Setzen|Markiertes Objekt setzen
+HightRel=Höhe rel.|Höhe relativ zum Gelände
+AsDefault=als Default|Die Verschiebung als Standardwert für dieses Objekt speichern
+AutoValue=Auto-Wert (Immobilien)|Defaultwerte für Verschiebung laden
+
+[TimeTable]
+TimeTable=Fahrplan
+ListHead=-     Bahnhof     -|- an -|- ab -
+editEntry=Eintrag bearbeiten
+station=Bahnhof
+arrival=Ankunft
+departure=Abfahrt
+edit=Bearbeiten
+menu=Menu
+subMenu=Fahrplan-Operationen
+setArrival=setze "an"
+setDeparture=setze "ab"
+shiftTimes=Verschiebe nachfolgende Zeiten
+laststop=Letzter Halt:
+laststart=Letzte Abfahrt:
+routes=Routen
+noEntrySelected=Kein Eintrag ausgewählt
+newPlan=Neuen Fahrplan anlegen
+deleteEntry=Eintrag löschen
+insertEntry=Eintrag einfügen
+deleteRoute=Route löschen
+newRoute=Route anlegen
+editRoute=Route bearbeiten
+RouteName=Name der Route
+RouteColor=Farbe in der Grafik
+selection=Fahrplan-Auswahl
+pattern=Fahrplan-Dateien (*.tt)|Alle Dateien (*.*)
+
+[Options]
+WindowPosition=Fensterpositionen
+SaveWindowPosition=Speichern|Speichert die Fensterpositionen und stellt sie bei Neustart wieder her
+SpeedLog=Fahrtenschreiber
+2min=2 min
+4min=4 min
+8min=8 min
+16min=16 min
+
+[Clock]
+StartStopMode=Einzelzeit
+StartContMode=Akkumulierend
+LapMode=Zwischenzeit
+LifeMode=EEP-Zeit
+Start=Start
+Stop=Stop
+Cont=Weiter
+Wait=Halt
+Reset=Rücksetzen
+Cycle=Zyklus|Fahrplanzyklus (bei EEP-Zeit)

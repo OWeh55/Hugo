@@ -1,0 +1,52 @@
+Tasten
+*  CTRL                   ALT               WIN   
+                          ALT+? menü
+--------------------------------------------------
+a  alles markieren/startgleis
+b                                           Wechsel zu Programm mit Nachricht
+c  kopieren
+d                                           Desktop
+e  endgleis                                 Computer
+f  Sig2(fahrt)                              Suche
+g  getImmo                                  Gadgetwechsel
+h  Sig1(halt)
+i  inverse
+j
+k 
+l                                           Sperren
+m  Messgleis                                Minimieren
+n
+o
+p  PutTrack                                 Präsentationsmode
+q
+r  ReplaceGleis                             Run
+s  SetzenImmo
+t  Clock                                    Programm-Umschalten(Taskleiste)
+u                                           Center für erleichterte Bedienung
+v  einfügen
+w
+x  ausschneiden                             Mobilitätscenter
+y
+z  undo
+0
+1
+2
+3
+4
+5
+6
+7
+8
+9
+F1
+F2
+F3
+F4
+F5
+F6
+F7
+F8
+F9
+F10
+F11
+F12
