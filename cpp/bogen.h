@@ -1,7 +1,6 @@
 #ifndef BOGEN_H
 #define BOGEN_H
 
-#include <image_nonvis.h>
 #include <cmath>
 #include <iostream>
 
@@ -194,10 +193,6 @@ public:
   {
     h1 += dh;
   }
-
-  virtual void Draw(int val, Image &img) const;
-  virtual void Draw(int val, Image &img,
-                    double xi, double yi, double xa, double ya) const;
 
   Bogen operator *(double fak)
   {

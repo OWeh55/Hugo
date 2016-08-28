@@ -1,31 +1,19 @@
-OBJECTS= bogen.o generate.o gleis.o optimizer.o point2d.o ray.o vector2d.o voperator.o
-
-ifndef ICEDIR
-ICEDIR=../../../ice
-endif
+OBJECTS= bogen.o generate.o gleis.o optimizer.o point2d.o ray.o vector2d.o voperator.o lmdif3.o
 
 LOPT := $(OPT)
 COPT := $(OPT) -std=c++11 -U__STRICT_ANSI__ -static-libgcc -static-libstdc++
-LIBS := -lice `wx-config --libs` -ljpeg
+LIBS :=
 
 LOPT := $(LOPT) -Wl,--enable-auto-import --static -static-libgcc -static-libstdc++
 LIBS := $(LIBS) -Wl,--subsystem,console -mconsole
-
-ifndef MACHTYPE
-MACHTYPE := some_machine
-endif
 
 #CXX=g++
 #CXX=icc
 
 COPT := -O4 $(COPT) -g -Wall -ffast-math -fno-strict-aliasing
 
-INCLUDE := -I$(ICEDIR)/src `wx-config --cxxflags`
-LIBRARY := -L$(ICEDIR)/lib/$(MACHTYPE)
-
-ifndef NOFFTW3
-LIBS := $(LIBS) -lfftw3
-endif
+INCLUDE :=
+LIBRARY :=
 
 %.o:%.c
 	$(CC) $(COPT) $(INCLUDE) -c $*.c
@@ -40,7 +28,7 @@ endif
 	$(CXX) $(COPT) $(INCLUDE) -c $*.cpp
 	$(CXX) $(LIBRARY) $(LOPT) -o $* $*.o $(LIBS)
 
-#$(MAIN): $(OBJECTS) $(ICEDIR)/lib/$(MACHTYPE)/libice.a
+#$(MAIN): $(OBJECTS)
 #	$(CXX) $(LOPT) $(LIBRARY) -o $(MAIN) $(OBJECTS) $(LIBS)
 
 gleis.dll gleis_test.dll libgleis_dll.a: gleis_dll.o $(OBJECTS)

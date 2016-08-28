@@ -6,7 +6,7 @@
 
 extern bool verbose;
 
-void UpdateGleisFromAngleVector(const Vector &fi, double flen, gleis &g)
+void UpdateGleisFromAngleVector(const vector<double> &fi, double flen, gleis &g)
 {
   g.clear();
   for (unsigned int i = 0; i < fi.size(); i++)
@@ -15,12 +15,12 @@ void UpdateGleisFromAngleVector(const Vector &fi, double flen, gleis &g)
     }
 }
 
-void UpdateAngleVectorFromGleis(const gleis &g, Vector &fi)
+void UpdateAngleVectorFromGleis(const gleis &g, vector<double> &fi)
 {
-  fi.Clear();
+  fi.clear();
   for (int i = 0; i < g.size(); i++)
     {
-      fi.Append(g[i].Fi());
+      fi.push_back(g[i].Fi());
     }
 }
 
@@ -80,14 +80,14 @@ protected:
   double endcurv;
 
   double &len; // length to be optimized
-  Vector &fi; // angles to be optimized
+  vector<double> &fi; // angles to be optimized
 
   int mode; // mode of optimization - parameter of error function
 
 public:
   GleisFehler(gleis &gp, const Bogen &startp,
               const Bogen &endp,
-              double &lenp, Vector &fip,
+              double &lenp, vector<double> &fip,
               int pmode):
     g(gp),
     startcurv(startp.Curvature()),
@@ -99,7 +99,7 @@ public:
     UpdateAngleVectorFromGleis(g, fi);
   };
 
-  virtual int operator()(Vector &res) const
+  virtual int operator()(vector<double> &res) const
   {
     UpdateGleisFromAngleVector(fi, len, g);
 
@@ -133,7 +133,7 @@ public:
     res[ind++] = (g.End().y - end.y) * end_point_weight;
     res[ind++] = normal(g.End().Dir() - end.Dir()) * end_point_weight;
 
-    return OK;
+    return 0;
   }
 
   virtual int funcdim() const
@@ -149,7 +149,7 @@ bool Optimize1(gleis &g, const Bogen &start, const Bogen &end,
                int mode)
 {
   double len = 60;
-  Vector f;
+  vector<double> f;
 
   GleisFehler ff(g, start, end, len, f, mode);
 
@@ -173,7 +173,7 @@ bool Optimize1(gleis &g, const Bogen &start, const Bogen &end,
   return (info > 0) && (info < 5);
 }
 
-void UpdateGleisFromLengthVector(const Vector &len,
+void UpdateGleisFromLengthVector(const vector<double> &len,
                                  double rad1, double rad2,
                                  gleis &g)
 {
@@ -195,13 +195,13 @@ protected:
   gleis &g;
 
   ray end;
-  Vector &length;
+  vector<double> &length;
   double rad1;
   double rad2;
 
 public:
   GleisFehler2(gleis &gp, ray start, ray endp,
-               Vector &lenp, double radp1, double radp2):
+               vector<double> &lenp, double radp1, double radp2):
     g(gp), end(endp),
     length(lenp), rad1(radp1), rad2(radp2)
   {
@@ -217,7 +217,7 @@ public:
     //    cout << length << endl;
   };
 
-  virtual int operator()(Vector &res) const
+  virtual int operator()(vector<double> &res) const
   {
     UpdateGleisFromLengthVector(length, rad1, rad2, g);
     //  of end point (with high weight)
@@ -231,7 +231,7 @@ public:
       cout << res << endl;
 #endif
 
-    return OK;
+    return 0;
   }
 
   virtual int funcdim() const
@@ -251,7 +251,7 @@ bool Optimize2(gleis &g,
   //    Kreis (rad2)
   // Längen werden optimiert
 
-  Vector len(3);
+  vector<double> len(3);
   GleisFehler2 ff(g, start.End(), end.Start(), len, rad1, rad2);
 
   vector<double *> pz; // variables to optimize (length)
@@ -279,7 +279,7 @@ bool Optimize2(gleis &g,
 
 bool Optimize2(gleis &g, const Bogen &start, const Bogen &end, double rad)
 {
-  Vector len(3);
+  vector<double> len(3);
 
   if (Optimize2(g, start, end, rad, rad)  ||
       Optimize2(g, start, end, -rad, rad) ||
@@ -337,7 +337,7 @@ public:
   {
   };
 
-  virtual int operator()(Vector &res) const
+  virtual int operator()(vector<double> &res) const
   {
     double hn, an;
     hsegment s1(h0, a0, len1, k1);
@@ -350,7 +350,7 @@ public:
     res[0] = hn - h3s;
     res[1] = an - a3s;
 
-    return OK;
+    return 0;
   }
 
   virtual int funcdim() const
