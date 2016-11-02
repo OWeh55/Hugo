@@ -1,4 +1,3 @@
-#include <image_nonvis.h>
 #include <cmath>
 #include <iostream>
 
@@ -79,42 +78,4 @@ point2d Bogen::Center() const
   if (rad != 0.0)
     center = start + rad * vector2d(start.Dir() + M_PI / 2);
   return center;
-}
-
-void Bogen::Draw(int val, Image &img) const
-{
-  Draw(val, img, 0, 0, img->xsize, img->ysize);
-}
-
-void Bogen::Draw(int val, Image &img,
-                 double xi, double yi, double xa, double ya) const
-{
-  double fx = img->xsize / (xa - xi);
-  double fy = img->ysize / (ya - yi);
-
-  int step = RoundInt(len * 10);
-  if (step > 2000) step = 2000;
-
-  double rad = Rad();
-
-  if (rad < 0)
-    {
-      Line((start.x - xi)*fx, (start.y - yi)*fy, (End().x - xi)*fx, (End().y - yi)*fy, val, img);
-    }
-  else
-    {
-      point2d mitte = Center();
-      vector2d radv = start - mitte;
-      for (int i = 0; i < step; i++)
-        {
-          point2d punkt = mitte + radv;
-          int xii = RoundInt((punkt.x - xi) * fx);
-          int yii = RoundInt((punkt.y - yi) * fy);
-// cout << xi << " " << yi << " " << xa <<" " << ya << " ";
-// cout  << punkt.x << " " << punkt.y << " "  << xii << " " << yii << endl;
-          if (Inside(img, xii, yii))
-            PutVal(img, xii, yii, val);
-          radv = radv.rot0(fi / step);
-        }
-    }
 }

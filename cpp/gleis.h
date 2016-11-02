@@ -2,6 +2,9 @@
 #define GLEIS_H
 
 #include "bogen.h"
+#include <vector>
+
+using namespace std;
 
 class gleis
 {
@@ -63,12 +66,6 @@ public:
   }
 
   virtual double Len() const;
-
-  virtual void Draw(int v1, int v2, Image &img) const;
-  virtual void Draw(int v, Image &img) const;
-
-  virtual void Draw(int v1, int v2, Image &img, double xi, double yi, double xa, double ya) const;
-  virtual void Draw(int v, Image &img, double xi, double yi, double xa, double ya) const;
 
   virtual int size() const
   {

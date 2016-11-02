@@ -1,41 +1,5 @@
 #include "gleis.h"
 
-void gleis::Draw(int v1, int v2, Image &img, double xi, double yi, double xa, double ya) const
-{
-  unsigned int i;
-  for (i = 0; i < gleise.size() - 1; i += 2)
-    {
-      gleise[i].Draw(v1, img, xi, yi, xa, ya);
-      gleise[i + 1].Draw(v2, img, xi, yi, xa, ya);
-    }
-
-  if (i < gleise.size())
-    gleise[i].Draw(v1, img, xi, yi, xa, ya);
-}
-
-void gleis::Draw(int v, Image &img, double xi, double yi, double xa, double ya) const
-{
-  Draw(v, v, img, xi, yi, xa, ya);
-}
-
-void gleis::Draw(int v1, int v2, Image &img) const
-{
-  unsigned int i;
-  for (i = 0; i < gleise.size() - 1; i += 2)
-    {
-      gleise[i].Draw(v1, img);
-      gleise[i + 1].Draw(v2, img);
-    }
-
-  if (i < gleise.size())
-    gleise[i].Draw(v1, img);
-}
-
-void gleis::Draw(int v, Image &img) const
-{
-  Draw(v, v, img);
-}
-
 void gleis::GetLimits(double &xi, double &yi, double &xa, double &ya, bool cont) const
 {
   if (gleise.empty())

@@ -1,6 +1,10 @@
 #ifndef _MYEX_H
 #define _MYEX_H
 
+#include <string>
+
+using namespace std;
+
 class myex
 {
 private:
