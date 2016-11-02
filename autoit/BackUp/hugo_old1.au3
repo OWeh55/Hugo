@@ -408,19 +408,16 @@ Func locateEEP($Version)
 			$EEPSection = "HKEY_LOCAL_MACHINE\SOFTWARE\Trend\EEP 10.00\EEXP"
 		Case 11
 			$EEPSection = "HKEY_LOCAL_MACHINE64\SOFTWARE\Trend\EEP 11.00\EEXP"
-		Case 111
+		Case 110
 			$EEPSection = "HKEY_LOCAL_MACHINE\SOFTWARE\Trend\EEP 11.00\EEXP"
 		Case 12
 			$EEPSection = "HKEY_LOCAL_MACHINE64\SOFTWARE\Trend\EEP 12.00\EEXP"
-		Case 112
+		Case 120
 			$EEPSection = "HKEY_LOCAL_MACHINE\SOFTWARE\Trend\EEP 12.00\EEXP"
 		Case 13
-			$EEPSection = "HKEY_LOCAL_MACHINE64\SOFTWARE\Trend\EEP 13.00\EEXP"
-		Case 113
 			$EEPSection = "HKEY_LOCAL_MACHINE\SOFTWARE\Trend\EEP 13.00\EEXP"
 	EndSwitch
-	$EEPDir = RegRead($EEPSection, "Directory")
-	;;MsgBox(0,"DIR",$EEPDir)
+	$EEPDir = RegRead($EEPSection, "Directory") ;
 	If @error Then
 		$EEPSection = ""
 		$EEPDir = ""
@@ -455,20 +452,18 @@ $EEPVersionReal = 0
 
 Switch $EEPVersionWanted
 	Case 0 ;; check all
-		If Not locateEEP(13) Then
-			If Not locateEEP(113) Then
-				If Not locateEEP(12) Then
-					If Not locateEEP(112) Then
-						If Not locateEEP(11) Then
-							If Not locateEEP(111) Then
-								If Not locateEEP(10) Then
-									locateEEP(110)
-								EndIf
-							EndIf
+		If Not locateEEP(12) Then
+		If Not locateEEP(12) Then
+			If Not locateEEP(112) Then
+				If Not locateEEP(11) Then
+					If Not locateEEP(111) Then
+						If Not locateEEP(10) Then
+							locateEEP(110)
 						EndIf
 					EndIf
 				EndIf
 			EndIf
+		EndIf
 		EndIf
 	Case 10
 		If Not locateEEP(10) Then
@@ -481,10 +476,6 @@ Switch $EEPVersionWanted
 	Case 12
 		If Not locateEEP(12) Then
 			locateEEP(112)
-		EndIf
-	Case 13
-		If Not locateEEP(13) Then
-			locateEEP(113)
 		EndIf
 	Case Else
 		FatalError("Version " & $EEPVersionWanted & " nicht unterstützt")
