@@ -8,10 +8,8 @@
 #include <stdexcept>
 #include <vector>
 // ice
-#include <matrixtemplate.h>
+#include "matrixtemplate.h"
 
-namespace ice
-{
   class LMFunctor
   {
   public:
@@ -19,7 +17,7 @@ namespace ice
                            std::vector<double>& result) const = 0;
     virtual int getDimension() const = 0;
   };
-
+  
   class LMSolver
   {
   public:
@@ -62,7 +60,7 @@ namespace ice
     bool getJacobian(const std::vector<double>& x,
                      const std::vector<int>& select,
                      const std::vector<double>& fv0,
-                     ice::matrix<double>& jm) const;
+                     matrix<double>& jm) const;
 
     const LMFunctor& fn;
     int functionDim;
@@ -82,5 +80,5 @@ namespace ice
     int stop = -1;           // stop condition
     double errorValue = -1;  // remaining error
   };
-}
+
 #endif

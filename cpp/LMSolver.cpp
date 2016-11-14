@@ -1,15 +1,13 @@
-#include <matrixtemplate.h>
-#include <matrixtools.h>
-#include <vectorarith.h>
-#include <vectortools.h>
-#include <MatrixAlgebra.h>
+#include "matrixtemplate.h"
+#include "matrixtools.h"
+#include "vectorarith.h"
+#include "vectortools.h"
+#include "MatrixAlgebra.h"
 #include "LMSolver.h"
 
 using namespace std;
 using namespace ice;
 
-namespace ice
-{
   bool LMSolver::getJacobian(const vector<double>& x,
                              const vector<int>& select,
                              const vector<double>& fv0,
@@ -202,4 +200,4 @@ namespace ice
       select[i] = i;
     solve(x, select);
   }
-}
+

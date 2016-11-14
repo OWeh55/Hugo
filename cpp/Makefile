@@ -1,4 +1,4 @@
-OBJECTS= bogen.o generate.o gleis.o optimizer.o point2d.o ray.o vector2d.o voperator.o lmdif3.o
+OBJECTS= bogen.o generate.o gleis.o optimizer.o point2d.o ray.o vector2d.o voperator.o LMSolver.o MatrixAlgebra.o ludecomp.o
 
 LOPT := $(OPT)
 COPT := $(OPT) -std=c++11 -U__STRICT_ANSI__ -static-libgcc -static-libstdc++
@@ -31,10 +31,13 @@ LIBRARY :=
 #$(MAIN): $(OBJECTS)
 #	$(CXX) $(LOPT) $(LIBRARY) -o $(MAIN) $(OBJECTS) $(LIBS)
 
-gleis.dll gleis_test.dll libgleis_dll.a: gleis_dll.o $(OBJECTS)
+gleis.dll gleis_test.dll: gleis_dll.o $(OBJECTS)
 	g++ $(LOPT) $(LIBRARY) -shared -o gleis_test.dll gleis_dll.o $(OBJECTS) $(LIBS) -Wl,--out-implib,libgleis_dll.a,--subsystem,windows
 	g++ $(LOPT) $(LIBRARY) -shared -o ../AutoIt/gleis.dll gleis_dll.o $(OBJECTS) $(LIBS) -Wl,--subsystem,windows,--kill-at
 	strip ../AutoIt/gleis.dll
+
+libgleis_dll.a: gleis_dll.o $(OBJECTS)
+	g++ -o gleis_test.dll gleis_dll.o $(OBJECTS)
 
 gleis_dll.o: gleis_dll.cpp gleis_dll.h
 	g++ -c -DBUILDING_DLL $(COPT) $(INCLUDE) gleis_dll.cpp
@@ -43,7 +46,7 @@ gleis_dll.o: gleis_dll.cpp gleis_dll.h
 gleis_dll_test.o: gleis_dll_test.cpp gleis_dll.h
 	g++ -c gleis_dll_test.cpp
 
-gleis_dll_test:	gleis_dll_test.o gleis_test.dll
+gleis_dll_test:	gleis_dll_test.o libgleis_dll.a
 	g++ -o gleis_dll_test gleis_dll_test.o -L. -lgleis_dll
 
 clean:

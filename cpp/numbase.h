@@ -25,8 +25,7 @@
 
 #include <algorithm>
 
-namespace ice
-{
+
   double  Arcus(double degree);
   double  Degree(double arcus);
   double  FMod(double v, double div);
@@ -199,5 +198,4 @@ namespace ice
   bool Solve2(double a1, double b1, double i1,
               double a2, double b2, double i2,
               double& x1, double& x2);
-}
 #endif

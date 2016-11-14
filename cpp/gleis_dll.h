@@ -1,10 +1,14 @@
 #ifndef GLEIS_DLL_H
 #define GLEIS_DLL_H
 
+#ifndef STATIC
 #ifdef BUILDING_DLL
 #define GLEIS_DLL __stdcall __declspec(dllexport)
 #else
 #define GLEIS_DLL __stdcall __declspec(dllimport)
+#endif
+#else
+#define GLEIS_DLL
 #endif
 
 const int tracksize = 15;

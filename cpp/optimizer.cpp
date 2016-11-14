@@ -1,7 +1,7 @@
 #include <fstream>
 #include "gleis.h"
 #include "optimizer.h"
-#include "lmdif.h"
+#include "LMSolver.h"
 #include "myex.h"
 
 extern bool verbose;
