@@ -28,38 +28,38 @@
 
 // type of function used by lmdif
 
-  typedef int lmfunc(int m, int n, double x[], double fvac[]);
+typedef int lmfunc(int m, int n, double x[], double fvac[]);
 
 // lmdif - original Levenberg-Marquardt optimizer adapted from fortran
 // direct use not recommended
-  int lmdif(lmfunc* fnc, int m, int n, double x[], double fvec[],
-            double ftol, double xtol, double gtol, int maxiter, double epsfcn,
-            double diag[], int mode, double factor,
-            int nprint, int* info, int* nfev,
-            double fjac[], int ldfjac,
-            int ipvt[], double qtf[]);
+int lmdif(lmfunc *fnc, int m, int n, double x[], double fvec[],
+          double ftol, double xtol, double gtol, int maxiter, double epsfcn,
+          double diag[], int mode, double factor,
+          int nprint, int *info, int *nfev,
+          double fjac[], int ldfjac,
+          int ipvt[], double qtf[]);
 
 // first wrapper for lmdif allocating memory
-  int lmdifx(lmfunc* fnc, int m, int n, double x[],
-             double ftol, double xtol, double gtol, int maxiter, double epsfcn,
-             double factor,
-             int nprint, int* info, int* nfev,
-             int ldfjac);
+int lmdifx(lmfunc *fnc, int m, int n, double x[],
+           double ftol, double xtol, double gtol, int maxiter, double epsfcn,
+           double factor,
+           int nprint, int *info, int *nfev,
+           int ldfjac);
 
 // Translate return codes of lmdif to message string
-  std::string LMDifMessage(int info);
+std::string LMDifMessage(int info);
 
 // function type used in the c++ wrapper for lmdif
 //  typedef int LMFunc(const std::vector<double>& variable, std::vector<double>& result);
 
 // functor version of wrapper
-  class LMFunctor
-  {
-  public:
-    virtual int operator()(std::vector<double>& result) const = 0;
-    virtual int funcdim() const = 0;
-    virtual ~LMFunctor() {};
-  };
+class LMFunctor
+{
+public:
+  virtual int operator()(std::vector<double> &result) const = 0;
+  virtual int funcdim() const = 0;
+  virtual ~LMFunctor() {};
+};
 
 #define LMMAXITER (INT_MAX/2)
 // wrappers for lmdif using objects as parameters
@@ -71,9 +71,9 @@
   int LMDif(Vector& variable, const IVector& optvar, LMFunc* fcn, int funcdim,
             int& inumber, int maxiter = LMMAXITER);
 */
-  int LMDif(const std::vector<double*>& v, const LMFunctor& fcn,
-            int maxiter, int& inumber, double epsStepLength = DBL_EPSILON);
-  int LMDif(const std::vector<double*>& v, const LMFunctor& fcn,
-            int maxiter = LMMAXITER);
+int LMDif(const std::vector<double *> &v, const LMFunctor &fcn,
+          int maxiter, int &inumber, double epsStepLength = DBL_EPSILON);
+int LMDif(const std::vector<double *> &v, const LMFunctor &fcn,
+          int maxiter = LMMAXITER);
 
 #endif

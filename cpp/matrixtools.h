@@ -25,25 +25,25 @@
 #include <vector>
 #include "matrixtemplate.h"
 
-  template<typename T>
-  std::ostream& operator<<(std::ostream& os, const matrix<T>& m)
-  {
-    std::streamsize width = os.width(0);
-    os << "<" << std::endl ;
+template<typename T>
+std::ostream &operator<<(std::ostream &os, const matrix<T> &m)
+{
+  std::streamsize width = os.width(0);
+  os << "<" << std::endl ;
 
-    for (int i = 0; i < m.rows(); i++)
-      {
-        os << " <";
-        for (int k = 0; k < m.cols() - 1; k++)
-          {
-            os << std::setw(width) << m[i][k] << "," ;
-          }
+  for (int i = 0; i < m.rows(); i++)
+    {
+      os << " <";
+      for (int k = 0; k < m.cols() - 1; k++)
+        {
+          os << std::setw(width) << m[i][k] << "," ;
+        }
 
-        os << std::setw(width) << m[i][m.cols() - 1] << ">" << std::endl ;
-      }
+      os << std::setw(width) << m[i][m.cols() - 1] << ">" << std::endl ;
+    }
 
-    os << ">" << std::endl ;
-    return os;
-  }
+  os << ">" << std::endl ;
+  return os;
+}
 
 #endif

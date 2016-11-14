@@ -23,12 +23,12 @@
 
 #include "matrixtemplate.h"
 
-  double Determinant(const matrix<double>& m);
-  double CholeskyDeterminant(const matrix<double>& m);
+double Determinant(const matrix<double> &m);
+double CholeskyDeterminant(const matrix<double> &m);
 
-  matrix<double> Inverse(const matrix<double>& m);
+matrix<double> Inverse(const matrix<double> &m);
 
-  // solve Ax = b
-  std::vector<double> SolveLinearEquation(const matrix<double>& m,
-                                          const std::vector<double>& b);
+// solve Ax = b
+std::vector<double> SolveLinearEquation(const matrix<double> &m,
+                                        const std::vector<double> &b);
 #endif

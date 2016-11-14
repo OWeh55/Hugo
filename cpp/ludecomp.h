@@ -28,13 +28,13 @@
 
 #include "matrixtemplate.h"
 
-  int LUDecompositionPacked(const matrix<double>& a, matrix<double>& res,
-                            std::vector<int>& index, bool pivot = true);
-  int LUDecompositionPacked(const matrix<double>& a, matrix<double>& res);
-  int LUDecomposition(const matrix<double>& a,
-                      matrix<double>& L, matrix<double>& U);
-  std::vector<double> LUSolve(const matrix<double>& LU,
-                              const std::vector<int>& index,
-                              const std::vector<double>& b);
+int LUDecompositionPacked(const matrix<double> &a, matrix<double> &res,
+                          std::vector<int> &index, bool pivot = true);
+int LUDecompositionPacked(const matrix<double> &a, matrix<double> &res);
+int LUDecomposition(const matrix<double> &a,
+                    matrix<double> &L, matrix<double> &U);
+std::vector<double> LUSolve(const matrix<double> &LU,
+                            const std::vector<int> &index,
+                            const std::vector<double> &b);
 
 #endif

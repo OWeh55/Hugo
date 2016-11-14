@@ -25,37 +25,37 @@
 #include <iomanip>
 #include <vector>
 
-  template<typename T>
-  std::vector<T> operator+(const std::vector<T>& v1, const std::vector<T>& v2)
-  {
-    std::vector<T> result(v1);
-    for (unsigned int i = 0; i < v2.size(); ++i)
-      result[i] += v2[i];
-    return result;
-  }
+template<typename T>
+std::vector<T> operator+(const std::vector<T> &v1, const std::vector<T> &v2)
+{
+  std::vector<T> result(v1);
+  for (unsigned int i = 0; i < v2.size(); ++i)
+    result[i] += v2[i];
+  return result;
+}
 
-  template<typename T>
-  std::vector<T> operator-(const std::vector<T>& v1, const std::vector<T>& v2)
-  {
-    std::vector<T> result(v1);
-    for (unsigned int i = 0; i < v2.size(); ++i)
-      result[i] -= v2[i];
-    return result;
-  }
+template<typename T>
+std::vector<T> operator-(const std::vector<T> &v1, const std::vector<T> &v2)
+{
+  std::vector<T> result(v1);
+  for (unsigned int i = 0; i < v2.size(); ++i)
+    result[i] -= v2[i];
+  return result;
+}
 
-  template<typename T>
-  double norm2(const std::vector<T>& v)
-  {
-    double sum2 = 0.0;
-    for (unsigned int i = 0; i < v.size(); ++i)
-      sum2 += v[i] * v[i];
-    return sum2;
-  }
+template<typename T>
+double norm2(const std::vector<T> &v)
+{
+  double sum2 = 0.0;
+  for (unsigned int i = 0; i < v.size(); ++i)
+    sum2 += v[i] * v[i];
+  return sum2;
+}
 
-  template<typename T>
-  double norm(const std::vector<T>& v)
-  {
-    return sqrt(norm2(v));
-  }
+template<typename T>
+double norm(const std::vector<T> &v)
+{
+  return sqrt(norm2(v));
+}
 
 #endif

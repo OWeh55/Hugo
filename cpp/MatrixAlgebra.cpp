@@ -33,7 +33,7 @@
 using std::vector;
 namespace ice
 {
-  double Determinant(const matrix<double>& m)
+  double Determinant(const matrix<double> &m)
   {
     if (m.cols() != m.rows())
       throw std::length_error("wrong dimension in determinant");
@@ -122,9 +122,9 @@ namespace ice
   }
 #undef FNAME
 
-  int SolveLinearEquation1(const matrix<double>& A,
-                           const std::vector<double>& b,
-                           std::vector<double>& x)
+  int SolveLinearEquation1(const matrix<double> &A,
+                           const std::vector<double> &b,
+                           std::vector<double> &x)
   {
     // Matrix is square, v has correct size
 
@@ -139,16 +139,16 @@ namespace ice
   }
 
 #define FNAME "SolveLinearEquation"
-  std::vector<double> SolveLinearEquation(const matrix<double>& m,
-                                          const std::vector<double>& b)
+  std::vector<double> SolveLinearEquation(const matrix<double> &m,
+                                          const std::vector<double> &b)
   {
     std::vector<double> res(m.cols());
 
-    if ((int)b.size() != m.rows()) 
+    if ((int)b.size() != m.rows())
       throw std::length_error("matrix format error");
 
-    if (m.cols() > m.rows()) 
-	throw std::length_error("matrix format error");
+    if (m.cols() > m.rows())
+      throw std::length_error("matrix format error");
 
     // Ausgleichsrechnung bei überbestimmten Gleichungsystemen
     if (m.cols() < m.rows())

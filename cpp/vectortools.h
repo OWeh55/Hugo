@@ -25,134 +25,134 @@
 #include <iomanip>
 #include <vector>
 
-  template<typename T>
-  T medianValue(std::vector<T> v) // call by value = copy !!
-  {
-    if (v.size() < 3)
-      return v[0]; // everything is median
-    sort(v.begin(), v.end());
-    return v[v.size() / 2];
-  }
+template<typename T>
+T medianValue(std::vector<T> v) // call by value = copy !!
+{
+  if (v.size() < 3)
+    return v[0]; // everything is median
+  sort(v.begin(), v.end());
+  return v[v.size() / 2];
+}
 
-  template<typename T>
-  T minValue(const std::vector<T>& v)
-  {
-    T min = v[0];
-    for (auto d : v)
-      {
-        if (d < min) min = d;
-      }
+template<typename T>
+T minValue(const std::vector<T> &v)
+{
+  T min = v[0];
+  for (auto d : v)
+    {
+      if (d < min) min = d;
+    }
 
-    return min;
-  }
+  return min;
+}
 
-  template<typename T>
-  T maxValue(const std::vector<T>& v)
-  {
-    double max = v[0];
-    for (auto d : v)
-      {
-        if (d > max) max = d;
-      }
+template<typename T>
+T maxValue(const std::vector<T> &v)
+{
+  double max = v[0];
+  for (auto d : v)
+    {
+      if (d > max) max = d;
+    }
 
-    return max;
-  }
+  return max;
+}
 
-  template<typename T>
-  int minIndex(const std::vector<T>& v)
-  {
-    T min = v[0];
-    int res = 0;
-    for (unsigned int i = 1; i < v.size(); i++)
-      {
-        if (v[i] < min)
-          {
-            min = v[i];
-            res = i;
-          }
-      }
-    return res;
-  }
+template<typename T>
+int minIndex(const std::vector<T> &v)
+{
+  T min = v[0];
+  int res = 0;
+  for (unsigned int i = 1; i < v.size(); i++)
+    {
+      if (v[i] < min)
+        {
+          min = v[i];
+          res = i;
+        }
+    }
+  return res;
+}
 
-  template<typename T>
-  int maxIndex(const std::vector<T>& v)
-  {
-    T max = v[0];
-    int res = 0;
-    for (unsigned int i = 1; i < v.size(); i++)
-      {
-        if (v[i] > max)
-          {
-            max = v[i];
-            res = i;
-          }
-      }
+template<typename T>
+int maxIndex(const std::vector<T> &v)
+{
+  T max = v[0];
+  int res = 0;
+  for (unsigned int i = 1; i < v.size(); i++)
+    {
+      if (v[i] > max)
+        {
+          max = v[i];
+          res = i;
+        }
+    }
 
-    return res;
-  }
+  return res;
+}
 
-  template<typename T>
-  std::ostream& operator<<(std::ostream& os, const std::vector<T>& v)
-  {
-    std::locale cLocale("C");
-    std::locale oldLocale = os.imbue(cLocale);
-    std::streamsize width = os.width(0);
-    os << "<" ;
-    for (int k = 0; k < (int)v.size() - 1; k++)
-      {
-        os << std::setw(width) << v[k] << "," ;
-      }
+template<typename T>
+std::ostream &operator<<(std::ostream &os, const std::vector<T> &v)
+{
+  std::locale cLocale("C");
+  std::locale oldLocale = os.imbue(cLocale);
+  std::streamsize width = os.width(0);
+  os << "<" ;
+  for (int k = 0; k < (int)v.size() - 1; k++)
+    {
+      os << std::setw(width) << v[k] << "," ;
+    }
 
-    os << std::setw(width) << v[v.size() - 1] << ">";
-    os.imbue(oldLocale);
-    return os;
-  }
+  os << std::setw(width) << v[v.size() - 1] << ">";
+  os.imbue(oldLocale);
+  return os;
+}
 
 #define FNAME "operator >>"
-  template<typename T>
-  std::istream& operator>>(std::istream& is, std::vector<T>& v)
-  {
-    std::locale cLocale("C");
-    std::locale oldLocale = is.imbue(cLocale);
-    T d;
-    char c = 0;
-    v.clear();
-    is >> c;
-    if (is.good())
-      {
-        if (c != '<')
-          {
-	    throw std::invalid_argument("file format error");
-	    //  Message(FNAME, M_WRONG_FILE, WRONG_FILE);
-            is.clear();
-            return is;
-          }
+template<typename T>
+std::istream &operator>>(std::istream &is, std::vector<T> &v)
+{
+  std::locale cLocale("C");
+  std::locale oldLocale = is.imbue(cLocale);
+  T d;
+  char c = 0;
+  v.clear();
+  is >> c;
+  if (is.good())
+    {
+      if (c != '<')
+        {
+          throw std::invalid_argument("file format error");
+          //  Message(FNAME, M_WRONG_FILE, WRONG_FILE);
+          is.clear();
+          return is;
+        }
 
-        if (is.peek() == '>')
-          {
-            // empty VectorT
-            is.ignore(1, '\n');
-            return is;
-          }
+      if (is.peek() == '>')
+        {
+          // empty VectorT
+          is.ignore(1, '\n');
+          return is;
+        }
 
-        do
-          {
-            is >> d >> c ;
-            v.push_back(d);
+      do
+        {
+          is >> d >> c ;
+          v.push_back(d);
 
-            if ((c != ',') && (c != '>'))
-              {
-		throw std::invalid_argument("file format error");
-                // Message(FNAME, M_WRONG_FILE, WRONG_FILE);
-                is.clear();
-                return is;
-              }
-          }
-        while (c != '>');
-      }
-    is.imbue(oldLocale);
-    return is;
-  }
+          if ((c != ',') && (c != '>'))
+            {
+              throw std::invalid_argument("file format error");
+              // Message(FNAME, M_WRONG_FILE, WRONG_FILE);
+              is.clear();
+              return is;
+            }
+        }
+      while (c != '>');
+    }
+  is.imbue(oldLocale);
+  return is;
+}
 #undef FNAME
 
 #endif
