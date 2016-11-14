@@ -136,7 +136,8 @@ public:
     if ((mode & 1) > 0) // change of curvature
       {
         // change from previous track to first track
-        res[resultIndex++] = (SQRT(g[0].Curvature()) - SQRT(start.Curvature())) * curvature_change_weight;
+	res[resultIndex++] = (SQRT(g[0].Curvature()) - SQRT(start.Curvature())) * curvature_change_weight;
+      // res[resultIndex++] = (g[0].Curvature() - start.Curvature()) * curvature_change_weight;
 	
 	// changes between tracks
 	for (int i = 1; i < g.size(); i++)
@@ -152,7 +153,7 @@ public:
       {
         for (int i = 0; i < g.size(); i++)
           {
-            res[resultIndex++] = SQRT(g[i].Curvature());
+            res[resultIndex++] = g[i].Curvature();
           }
       }
 
@@ -272,7 +273,6 @@ bool Optimize2(gleis &g,
   //    Kreis (rad2)
   // Längen werden optimiert
 
-  vector<double> len(3);
   GleisFehler2 ff(start.End(), end.Start(), rad1, rad2);
   LMSolver opt(ff);
 
@@ -289,14 +289,12 @@ bool Optimize2(gleis &g,
       cout << len << endl;
     }
 #endif
-  if (f[0] < 1.0) return false;
-  if (f[1] < 1.0) return false;
-  if (f[2] < 1.0) return false;
+  if (f[0] < 1.0 || f[1] < 1.0 || f[2] < 1.0) return false;
   g.clear();
   g.setStart(start.End());
-  g.Append(f[0],rad1);
+  g.Append(f[0],f[0]/rad1);
   g.Append(f[1],0);  
-  g.Append(f[2],rad2);
+  g.Append(f[2],f[2]/rad2);
   return true;
 }
 

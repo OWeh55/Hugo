@@ -4011,13 +4011,13 @@ Do
 			Case $getposbutton
 				SetTab($ImmoTab)
 				If $objeditoridx >= 0 Then
-					Local $oldname = $ImmoPos1[0] ;
+					Local $oldname = $ImmoPos1[0]
 					GetImmoData($ImmoPos1, False)
-					showimmodata($immodata, $ImmoPos1) ;
+					showimmodata($immodata, $ImmoPos1)
 					If $ImmoPos1[0] <> $oldname Then
 						If $auto_val Then
 							;; versuchen, Verschiebungswerte zu laden
-							ReadDefaultShift() ;
+							ReadDefaultShift()
 						EndIf
 					EndIf
 					$iValid = True ;
