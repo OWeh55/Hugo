@@ -37,14 +37,14 @@ gleis.dll gleis_test.dll: gleis_dll.o $(OBJECTS)
 	strip ../AutoIt/gleis.dll
 
 libgleis_dll.a: gleis_dll.o $(OBJECTS)
-	g++ -o gleis_test.dll gleis_dll.o $(OBJECTS)
+	ar ruvs libgleis_dll.a	gleis_dll.o $(OBJECTS)
 
 gleis_dll.o: gleis_dll.cpp gleis_dll.h
 	g++ -c -DBUILDING_DLL $(COPT) $(INCLUDE) gleis_dll.cpp
 
 
 gleis_dll_test.o: gleis_dll_test.cpp gleis_dll.h
-	g++ -c gleis_dll_test.cpp
+	g++ -O2 -std=c++11 -c gleis_dll_test.cpp
 
 gleis_dll_test:	gleis_dll_test.o libgleis_dll.a
 	g++ -o gleis_dll_test gleis_dll_test.o -L. -lgleis_dll

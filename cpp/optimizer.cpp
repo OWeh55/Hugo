@@ -83,6 +83,14 @@ void Init(gleis &verbindung,
     }
 }
 
+double SQRT(double x)
+{
+  if (x>0)
+    return sqrt(x);
+  else
+    return -sqrt(-x);
+}
+
 class GleisFehler: public LMFunctor
 {
   // Gleis mit n gleich langen Gleisen
@@ -115,40 +123,47 @@ public:
   virtual int operator()(const vector<double> &x, vector<double> &res) const
   {
     gleis g(start.End());
+    //    cout << x[0] << " ";
     for (unsigned int i = 1; i < x.size(); i++)
       {
+	// cout << x[i] << " ";
 	g.Append(x[0], x[i]);
       }
-    
-    unsigned int ind = 0;
+    //    cout << endl;
+
+    unsigned int resultIndex = 0;
 
     if ((mode & 1) > 0) // change of curvature
       {
         // change from previous track to first track
-        res[ind++] = (g[0].Curvature() - start.Curvature()) * curvature_change_weight;
+        res[resultIndex++] = (SQRT(g[0].Curvature()) - SQRT(start.Curvature())) * curvature_change_weight;
 	
 	// changes between tracks
 	for (int i = 1; i < g.size(); i++)
 	  {
-	    res[ind++] = (g[i].Curvature() - g[i - 1].Curvature()) * curvature_change_weight;
+	    res[resultIndex++] = (SQRT(g[i].Curvature()) - SQRT(g[i - 1].Curvature())) * curvature_change_weight;
 	  }
 	
 	// changes from last track to next track
-	res[ind++] = (g[g.size() - 1].Curvature() - end.Curvature()) * curvature_change_weight;
+	res[resultIndex++] = (SQRT(g[g.size() - 1].Curvature()) - SQRT(end.Curvature())) * curvature_change_weight;
       }
     
     if ((mode & 2) > 0) // curvature
       {
         for (int i = 0; i < g.size(); i++)
           {
-            res[ind++] = g[i].Curvature();
+            res[resultIndex++] = SQRT(g[i].Curvature());
           }
       }
 
     //  of end point (with high weight)
-    res[ind++] = (g.End().x - end.End().x) * end_point_weight;
-    res[ind++] = (g.End().y - end.End().y) * end_point_weight;
-    res[ind++] = normal(g.End().Dir() - end.Start().Dir()) * end_point_weight;
+    res[resultIndex++] = (g.End().x - end.Start().x) * end_point_weight;
+    res[resultIndex++] = (g.End().y - end.Start().y) * end_point_weight;
+    res[resultIndex++] = normal(g.End().Dir() - end.Start().Dir()) * end_point_weight;
+
+    //    for(int i=0;i<res.size();++i)
+    //      cout << res[i] << " " ;
+    //    cout << endl;
 
     return 0;
   }
@@ -330,29 +345,24 @@ protected:
 
   double h0, h3s;
 
-  double &k1;
-  double &k3;
-
 public:
   HoehenFehler1(double len1p, double len2p, double len3p,
                 double a0p, double a3sp,
-                double h0p, double h3sp,
-                double &k1p, double &k3p):
+                double h0p, double h3sp):
     len1(len1p), len2(len2p), len3(len3p),
     a0(a0p), a3s(a3sp),
-    h0(h0p), h3s(h3sp),
-    k1(k1p), k3(k3p)
+    h0(h0p), h3s(h3sp)
   {
   };
 
-  virtual int operator()(vector<double> &res) const
+  virtual int operator()(const vector<double> &x, vector<double> &res) const
   {
     double hn, an;
-    hsegment s1(h0, a0, len1, k1);
+    hsegment s1(h0, a0, len1, x[0]);
     s1.last(hn, an);
     hsegment s2(hn, an, len2, 0);
     s2.last(hn, an);
-    hsegment s3(hn, an, len3, k3);
+    hsegment s3(hn, an, len3, x[1]);
     s3.last(hn, an);
 
     res[0] = hn - h3s;
@@ -361,7 +371,7 @@ public:
     return 0;
   }
 
-  virtual int funcdim() const
+  virtual int getDimension() const
   {
     int dim = 2; // endhoehe, endanstieg
     return dim;
@@ -372,9 +382,6 @@ bool OptimizeHoehe1(gleis &g,
                     const Bogen &start,
                     const Bogen &end)
 {
-  double k1 = 0.001;
-  double k3 = -0.001;
-
   int nTracks = g.size();
 
   double len = g.Len();
@@ -385,31 +392,31 @@ bool OptimizeHoehe1(gleis &g,
 
   HoehenFehler1 ff(len1, len2, len3,
                    start.GradEnd(), end.Grad(),
-                   start.H2(), end.H1(),
-                   k1, k3);
+                   start.H2(), end.H1());
 
-  vector<double *> pz; // variables to optimize (length)
-  pz.push_back(&k1);
-  pz.push_back(&k3);
-
-  int inumber;
-
-  int rc = LMDif(pz, ff, 10000, inumber);
+  vector<double> k(2); // variables to optimize ()
+  k[0]=0.0001;
+  k[1]=-0.0001;
+  
+  LMSolver lms(ff);
+  
+  lms.solve(k);
+  int rc = lms.getInfo();
   if (rc < 1 || rc > 4)
     return false;
-
+  
   double hn, an;
 
-  hsegment s1(start.H2(), start.Grad(), len1, k1);
+  hsegment s1(start.H2(), start.Grad(), len1, k[0]);
   s1.last(hn, an);
   hsegment s2(hn, an, len2, 0);
   s2.last(hn, an);
-  hsegment s3(hn, an, len3, k3);
+  hsegment s3(hn, an, len3, k[1]);
   s3.last(hn, an);
-
+  
   double h = start.H2();
   double a = start.GradEnd();
-  g[0].setHeights(h, a, k1);
+  g[0].setHeights(h, a, k[0]);
   h = g[0].H2();
   a = g[0].GradEnd();
   for (int i = 1; i < g.size() - 1; ++i)
@@ -417,6 +424,6 @@ bool OptimizeHoehe1(gleis &g,
       g[i].setHeights(h, a, 0);
       h = g[i].H2();
     }
-  g[g.size() - 1].setHeights(h, a, k3);
+  g[g.size() - 1].setHeights(h, a, k[1]);
   return true;
 }

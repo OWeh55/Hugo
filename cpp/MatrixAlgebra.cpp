@@ -31,9 +31,8 @@
 #define PRECISION 1e-200
 
 using std::vector;
-namespace ice
-{
-  double Determinant(const matrix<double> &m)
+
+double Determinant(const matrix<double> &m)
   {
     if (m.cols() != m.rows())
       throw std::length_error("wrong dimension in determinant");
@@ -139,8 +138,8 @@ namespace ice
   }
 
 #define FNAME "SolveLinearEquation"
-  std::vector<double> SolveLinearEquation(const matrix<double> &m,
-                                          const std::vector<double> &b)
+  vector<double> SolveLinearEquation(const matrix<double> &m,
+				     const std::vector<double> &b)
   {
     std::vector<double> res(m.cols());
 
@@ -171,4 +170,4 @@ namespace ice
     return res;
   }
 #undef FNAME
-} // namespace ice
+
