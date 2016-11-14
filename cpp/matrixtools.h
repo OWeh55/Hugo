@@ -26,7 +26,7 @@
 #include "matrixtemplate.h"
 
   template<typename T>
-  std::ostream& operator<<(std::ostream& os, const ice::matrix<T>& m)
+  std::ostream& operator<<(std::ostream& os, const matrix<T>& m)
   {
     std::streamsize width = os.width(0);
     os << "<" << std::endl ;

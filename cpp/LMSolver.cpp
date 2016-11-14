@@ -6,12 +6,11 @@
 #include "LMSolver.h"
 
 using namespace std;
-using namespace ice;
 
   bool LMSolver::getJacobian(const vector<double>& x,
                              const vector<int>& select,
                              const vector<double>& fv0,
-                             ice::matrix<double>& jm) const
+                             matrix<double>& jm) const
   {
     vector<double> fv(functionDim);
     vector<double> x1(x);
@@ -52,11 +51,11 @@ using namespace ice;
     vector<double> functionValue(functionDim);
 
     fn(x, functionValue);
-    double functionNorm2 = ice::norm2(functionValue);
+    double functionNorm2 = norm2(functionValue);
 
     double lmPara = -1; // Levenberg-Marquard-Parameter
     stop = 0;
-    ice::matrix<double> jm(functionDim, nVars);
+    matrix<double> jm(functionDim, nVars);
     bool newJacobi = true;
     while (stop == 0)
       {
@@ -68,7 +67,7 @@ using namespace ice;
 
         //      cout << "Jacobi: " << jm << endl;
         //      cout << "functionValue: " << functionValue << endl;
-        ice::matrix<double> A = !jm * jm;
+        matrix<double> A = !jm * jm;
         //      cout << "A: " << A << endl;
 
         if (lmPara < 0)
@@ -112,7 +111,7 @@ using namespace ice;
         vector<double> newFunctionValue(functionDim);
         fn(newX, newFunctionValue);
 
-        double newFNorm2 = ice::norm2(newFunctionValue);
+        double newFNorm2 = norm2(newFunctionValue);
 
         vector<double> predictedFunctionValue = functionValue - jm * deltaX;
         double predictedFNorm2 = norm2(predictedFunctionValue);
