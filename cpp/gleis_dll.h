@@ -11,7 +11,7 @@
 #define GLEIS_DLL
 #endif
 
-const int tracksize = 15;
+const int tracksize = 16;
 
 // indices of values in track as AutoIt-Array
 const int ix = 0;

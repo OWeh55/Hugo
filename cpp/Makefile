@@ -42,7 +42,6 @@ libgleis_dll.a: gleis_dll.o $(OBJECTS)
 gleis_dll.o: gleis_dll.cpp gleis_dll.h
 	g++ -c -DBUILDING_DLL $(COPT) $(INCLUDE) gleis_dll.cpp
 
-
 gleis_dll_test.o: gleis_dll_test.cpp gleis_dll.h
 	g++ -O2 -std=c++11 -c gleis_dll_test.cpp
 

@@ -99,7 +99,7 @@ class GleisFehler: public LMFunctor
   // 2 - Curvature
   // 3 - both
 protected:
-  constexpr static double curvature_change_weight = 1000;
+  constexpr static double curvature_change_weight = 1000;//1000;
   constexpr static double end_point_weight = 1000;
 
   Bogen start;
@@ -137,7 +137,7 @@ public:
       {
         // change from previous track to first track
 	res[resultIndex++] = (SQRT(g[0].Curvature()) - SQRT(start.Curvature())) * curvature_change_weight;
-      // res[resultIndex++] = (g[0].Curvature() - start.Curvature()) * curvature_change_weight;
+	// res[resultIndex++] = (g[0].Curvature() - start.Curvature()) * curvature_change_weight;
 	
 	// changes between tracks
 	for (int i = 1; i < g.size(); i++)
@@ -194,7 +194,7 @@ bool Optimize1(gleis &g, const Bogen &start, const Bogen &end,
   GleisFehler ff(start, end, g.size(), mode);
 
   LMSolver opt(ff);
-
+  opt.setStopConditions(1e-20, 1e-20, 0, 10000000);
   opt.solve(f);
 
   int info = opt.getInfo();
