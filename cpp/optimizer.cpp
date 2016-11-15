@@ -119,7 +119,7 @@ public:
     mode(pmode)
   {
   };
-  
+
   virtual int operator()(const vector<double> &x, vector<double> &res) const
   {
     gleis g(start.End());
@@ -138,22 +138,23 @@ public:
         // change from previous track to first track
 	res[resultIndex++] = (SQRT(g[0].Curvature()) - SQRT(start.Curvature())) * curvature_change_weight;
 	// res[resultIndex++] = (g[0].Curvature() - start.Curvature()) * curvature_change_weight;
-	
+
 	// changes between tracks
 	for (int i = 1; i < g.size(); i++)
 	  {
 	    res[resultIndex++] = (SQRT(g[i].Curvature()) - SQRT(g[i - 1].Curvature())) * curvature_change_weight;
 	  }
-	
+
 	// changes from last track to next track
 	res[resultIndex++] = (SQRT(g[g.size() - 1].Curvature()) - SQRT(end.Curvature())) * curvature_change_weight;
       }
-    
+
     if ((mode & 2) > 0) // curvature
       {
         for (int i = 0; i < g.size(); i++)
           {
-            res[resultIndex++] = g[i].Curvature();
+			  double temp=g[i].Curvature();
+            res[resultIndex++] = SQRT(temp);
           }
       }
 
@@ -190,7 +191,7 @@ bool Optimize1(gleis &g, const Bogen &start, const Bogen &end,
   f.push_back(len);
   for (int i=0;i<g.size();++i)
     f.push_back(g[i].Fi());
-  
+
   GleisFehler ff(start, end, g.size(), mode);
 
   LMSolver opt(ff);
@@ -198,7 +199,7 @@ bool Optimize1(gleis &g, const Bogen &start, const Bogen &end,
   opt.solve(f);
 
   int info = opt.getInfo();
-  
+
   g.clear();
   for (unsigned int i = 1; i < f.size(); i++)
     {
@@ -230,7 +231,7 @@ public:
     rad1(radp1), rad2(radp2)
   {
   };
-  
+
   virtual int operator()(const vector<double> &x,vector<double> &res) const
   {
     gleis g(start);
@@ -243,11 +244,11 @@ public:
       g.Append(x[2], x[2] / rad2);
     else
       g.Append(x[2], 0);
-    
-    //  end point (with high weight)
+
+    //  end point
     res[0] = (g.End().x - end.x);
     res[1] = (g.End().y - end.y);
-    res[2] = normal(g.End().Dir() - end.Dir());
+    res[2] = normal(g.End().Dir() - end.Dir())*10;
 
 #if 0
     if (verbose)
@@ -282,6 +283,8 @@ bool Optimize2(gleis &g,
   int rc = opt.getInfo();
   if (rc < 1 || rc > 4)
     return false;
+  if (opt.getErrorValue()>1)
+	  return false;
 #if 0
   if (verbose)
     {
@@ -293,25 +296,34 @@ bool Optimize2(gleis &g,
   g.clear();
   g.setStart(start.End());
   g.Append(f[0],f[0]/rad1);
-  g.Append(f[1],0);  
+  g.Append(f[1],0);
   g.Append(f[2],f[2]/rad2);
   return true;
 }
 
 bool Optimize2(gleis &g, const Bogen &start, const Bogen &end, double rad)
 {
-  vector<double> len(3);
+  if (rad>0)
+  {
+  return (Optimize2(g, start, end, rad, rad)  ||
+		Optimize2(g, start, end, -rad, rad) ||
+		Optimize2(g, start, end, rad, -rad) ||
+		Optimize2(g, start, end, -rad, -rad));
+  }
+  else
+  {
+	  double rad1, rad2;
 
-  if (Optimize2(g, start, end, rad, rad)  ||
-      Optimize2(g, start, end, -rad, rad) ||
-      Optimize2(g, start, end, rad, -rad) ||
-      Optimize2(g, start, end, -rad, -rad))
-    {
+	  rad1=start.Rad();
+	  rad2=end.Rad();
 
-      // Gleishoehe wird hier nicht behandelt
-      return true;
-    }
-  return false;
+	  if (rad1 == 0) rad1 = rad2;
+	  if (rad2 == 0) rad2 = rad1;
+	  if (rad2 == 0) return false;
+
+	  return Optimize2(g, start, end, rad1, rad2);
+  }
+
 }
 
 class hsegment
@@ -395,14 +407,14 @@ bool OptimizeHoehe1(gleis &g,
   vector<double> k(2); // variables to optimize ()
   k[0]=0.0001;
   k[1]=-0.0001;
-  
+
   LMSolver lms(ff);
-  
+
   lms.solve(k);
   int rc = lms.getInfo();
   if (rc < 1 || rc > 4)
     return false;
-  
+
   double hn, an;
 
   hsegment s1(start.H2(), start.Grad(), len1, k[0]);
@@ -411,7 +423,7 @@ bool OptimizeHoehe1(gleis &g,
   s2.last(hn, an);
   hsegment s3(hn, an, len3, k[1]);
   s3.last(hn, an);
-  
+
   double h = start.H2();
   double a = start.GradEnd();
   g[0].setHeights(h, a, k[0]);
