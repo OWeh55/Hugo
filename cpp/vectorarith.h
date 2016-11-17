@@ -34,6 +34,21 @@ std::vector<T> operator+(const std::vector<T> &v1, const std::vector<T> &v2)
   return result;
 }
 
+template<typename T,typename T2>
+std::vector<T> operator*(const std::vector<T> &v, const T2 &s)
+{
+  std::vector<T> result(v);
+  for (unsigned int i = 0; i < v.size(); ++i)
+    result[i] *= s;
+  return result;
+}
+
+template<typename T,typename T2>
+std::vector<T> operator*(const T2 &s, const std::vector<T> &v)
+{
+  return v*s;
+}
+
 template<typename T>
 std::vector<T> operator-(const std::vector<T> &v1, const std::vector<T> &v2)
 {
@@ -57,5 +72,4 @@ double norm(const std::vector<T> &v)
 {
   return sqrt(norm2(v));
 }
-
 #endif

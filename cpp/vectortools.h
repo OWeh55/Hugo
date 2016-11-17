@@ -26,7 +26,7 @@
 #include <vector>
 
 template<typename T>
-T medianValue(std::vector<T> v) // call by value = copy !!
+T medianValue(std::vector<T> v) // call by value = copy for sort !!
 {
   if (v.size() < 3)
     return v[0]; // everything is median
@@ -94,7 +94,7 @@ int maxIndex(const std::vector<T> &v)
 template<typename T>
 std::ostream &operator<<(std::ostream &os, const std::vector<T> &v)
 {
-  std::locale cLocale("C");
+  std::locale cLocale("C");  // we use "C" for machine readable files
   std::locale oldLocale = os.imbue(cLocale);
   std::streamsize width = os.width(0);
   os << "<" ;
@@ -112,7 +112,7 @@ std::ostream &operator<<(std::ostream &os, const std::vector<T> &v)
 template<typename T>
 std::istream &operator>>(std::istream &is, std::vector<T> &v)
 {
-  std::locale cLocale("C");
+  std::locale cLocale("C"); // we use "C" for machine readable files
   std::locale oldLocale = is.imbue(cLocale);
   T d;
   char c = 0;
@@ -123,11 +123,8 @@ std::istream &operator>>(std::istream &is, std::vector<T> &v)
       if (c != '<')
         {
           throw std::invalid_argument("file format error");
-          //  Message(FNAME, M_WRONG_FILE, WRONG_FILE);
-          is.clear();
-          return is;
         }
-
+      
       if (is.peek() == '>')
         {
           // empty VectorT
@@ -143,9 +140,6 @@ std::istream &operator>>(std::istream &is, std::vector<T> &v)
           if ((c != ',') && (c != '>'))
             {
               throw std::invalid_argument("file format error");
-              // Message(FNAME, M_WRONG_FILE, WRONG_FILE);
-              is.clear();
-              return is;
             }
         }
       while (c != '>');
@@ -154,5 +148,4 @@ std::istream &operator>>(std::istream &is, std::vector<T> &v)
   return is;
 }
 #undef FNAME
-
 #endif

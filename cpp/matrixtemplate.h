@@ -14,7 +14,7 @@ private:
   int nColumns;
   int nRows;
   T *data;
-
+  
 public:
   matrix(): nColumns(0), nRows(0), data(nullptr) {}
   matrix(int r, int c, int init = -1):
@@ -22,7 +22,7 @@ public:
   {
     initMatrix(init);
   }
-
+  
   void initMatrix(int mode)
   {
     if (mode >= 0)
@@ -38,11 +38,11 @@ public:
   matrix(const matrix &m): nColumns(m.nColumns), nRows(m.nRows)
   {
     data = new T[nColumns * nRows];
-
+    
     for (int i = 0; i < nRows * nColumns; i++)
       data[i] = m.data[i];
   }
-
+  
   matrix(int r, int c, const std::initializer_list<T> &l):
     nColumns(c), nRows(r), data(new T[r * c])
   {
@@ -50,12 +50,12 @@ public:
     for (auto p = l.begin(); p != l.end(); ++p)
       data[i++] = *p;
   }
-
+  
   ~matrix()
   {
     delete [] data;
   };
-
+  
   void resize(int r, int c)
   {
     matrix<T> newmat(r, c);
@@ -69,7 +69,7 @@ public:
       }
     swap(newmat, *this);
   }
-
+  
   void init(int r, int c, int init = -1)
   {
     delete [] data;
@@ -78,14 +78,13 @@ public:
     data = new T[r * c];
     initMatrix(init);
   }
-
+  
   void set(T value)
   {
     for (int i = 0; i < nRows * nColumns; i++)
       data[i] = value;
   }
-  //    template<typename Ts>
-  //    friend void swap(matrix<Ts> &m1,matrix<Ts> &m2)
+
   friend void swap(matrix &m1, matrix &m2)
   {
     std::swap(m1.nRows, m2.nRows);
@@ -150,14 +149,14 @@ public:
     res += rhs;
     return res;
   }
-
+  
   matrix<T> &operator +=(const matrix<T> &rhs)
   {
     for (int i = 0; i < nColumns * nRows; i++)
       data[i] += rhs.data[i];
     return *this;
   }
-
+  
   friend matrix<T> operator-(const matrix<T> &lhs,
                              const matrix<T> &rhs)
   {
@@ -173,7 +172,6 @@ public:
 
     return *this;
   }
-
 
   matrix<T> operator-() const
   {
@@ -200,12 +198,10 @@ public:
                              const matrix<T> &rhs)
   {
     matrix<T> res(lhs.nRows, rhs.nColumns);
-
+    
     if (lhs.nColumns != rhs.nRows)
       {
         throw std::length_error("wrong dimension in matrix multiplication");
-        // Message(FNAME, M_WRONG_DIM, WRONG_PARAM);
-        return res;
       }
 
     for (int i = 0; i < lhs.nRows; i++)
@@ -231,8 +227,6 @@ public:
     if ((int)lhs.size() != rhs.nRows)
       {
         throw std::length_error("wrong dimension in matrix multiplication");
-        //         Message(FNAME, M_WRONG_DIM, WRONG_PARAM);
-        return res;
       }
 
     for (int j = 0; j < rhs.nColumns; ++j)
@@ -255,8 +249,6 @@ public:
     if (lhs.nColumns != (int)rhs.size())
       {
         throw std::length_error("wrong dimension in matrix multiplication");
-        //          Message(FNAME, M_WRONG_DIM, WRONG_PARAM);
-        return res;
       }
 
     for (int i = 0; i < lhs.nRows; ++i)
