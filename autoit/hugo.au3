@@ -3331,14 +3331,26 @@ GUISetState(@SW_SHOW)
 Global $keylist[1] = [""]
 Global $keymsglist[1] = [""]
 
+Func HotKeyTargetIsActive()
+	If WinActive($gui)<>0 Then Return True  ; Hugo window is active
+	If WinActive($eep)<>0 Then Return True  ; EEP window is active
+	Return False                            ; neither Hugo nor EEP are active
+EndFunc
+
 Func HotKeyDispatcher()
 	;; bearbeitet alle Hugo-Hotkeys
-	If UBound($keylist) > 0 Then
-		Local $kidx = _ArrayBinarySearch($keylist, @HotKeyPressed)
-		;; MsgBox(0,"HotKey",@HotKeyPressed & " " & $kidx,5)
-		If $kidx >= 0 Then
-			$msg = $keymsglist[$kidx]
+	If HotKeyTargetIsActive() Then
+		If UBound($keylist) > 0 Then
+			Local $kidx = _ArrayBinarySearch($keylist, @HotKeyPressed)
+			;; MsgBox(0,"HotKey",@HotKeyPressed & " " & $kidx,5)
+			If $kidx >= 0 Then
+				$msg = $keymsglist[$kidx]
+			EndIf
 		EndIf
+	Else  ; pass along the keypress
+		HotKeySet(@HotKeyPressed)
+		Send(@HotKeyPressed)
+		HotKeySet(@HotKeyPressed, "HotKeyDispatcher")
 	EndIf
 EndFunc   ;==>HotKeyDispatcher
 
