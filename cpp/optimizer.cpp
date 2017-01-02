@@ -134,6 +134,7 @@ public:
     unsigned int resultIndex = 0;
 
     if ((mode & 1) > 0) // change of curvature
+#if 0
       {
         // change from previous track to first track
 	res[resultIndex++] = (SQRT(g[0].Curvature()) - SQRT(start.Curvature())) * curvature_change_weight;
@@ -147,7 +148,38 @@ public:
 
 	// changes from last track to next track
 	res[resultIndex++] = (SQRT(g[g.size() - 1].Curvature()) - SQRT(end.Curvature())) * curvature_change_weight;
-      }
+}
+#endif
+	#if 0
+	{
+        // change from previous track to first track
+		res[resultIndex++] = SQRT(g[0].Curvature()-start.Curvature()) * curvature_change_weight;
+
+		// changes between tracks
+		for (int i = 1; i < g.size(); i++)
+		{
+			res[resultIndex++] = SQRT(g[i].Curvature()-g[i - 1].Curvature()) * curvature_change_weight;
+		}
+
+		// changes from last track to next track
+		res[resultIndex++] = SQRT(g[g.size() - 1].Curvature()-end.Curvature()) * curvature_change_weight;
+	}
+#endif
+#if 1
+	{
+        // change from previous track to first track
+		res[resultIndex++] = (g[0].Curvature()-start.Curvature()) * curvature_change_weight;
+
+		// changes between tracks
+		for (int i = 1; i < g.size(); i++)
+		{
+			res[resultIndex++] = (g[i].Curvature()-g[i - 1].Curvature()) * curvature_change_weight;
+		}
+
+		// changes from last track to next track
+		res[resultIndex++] = (g[g.size() - 1].Curvature()-end.Curvature()) * curvature_change_weight;
+	}
+#endif
 
     if ((mode & 2) > 0) // curvature
       {
