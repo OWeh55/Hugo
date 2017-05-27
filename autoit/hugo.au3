@@ -29,6 +29,7 @@ Global $eep_lang
 ;; EEP version - still unknown
 Global $EEPVersionWanted = 0
 Global $EEPVersionReal = 0
+Global $EEPVersionSub = 0
 
 ;; registry section and directory path
 Global $EEPSection = ""
@@ -112,7 +113,6 @@ Global $actionlist
 Global $ScreenSize
 ;; Handler for EEP-Window
 Global $eep
-
 
 Global $TrackTab
 Global $Track2Tab
@@ -207,31 +207,6 @@ Global $clock_reset_button
 Func Inside($winpos, $x, $y)
 	Return $x > $winpos[0] And $x < $winpos[0] + $winpos[2] And $y > $winpos[1] And $y < $winpos[1] + $winpos[3]
 EndFunc   ;==>Inside
-#cs
-	Func WinListChildren($hWnd, ByRef $avArr)
-	If UBound($avArr, 0) <> 2 Then
-	Local $avTmp[10][2] = [[0]]
-	$avArr = $avTmp
-	EndIf
-
-	Local $hChild = _WinAPI_GetWindow($hWnd, $GW_CHILD)
-
-	While $hChild
-	If $avArr[0][0] + 1 > UBound($avArr, 1) - 1 Then ReDim $avArr[$avArr[0][0] + 10][2]
-	$avArr[$avArr[0][0] + 1][0] = $hChild
-	;; $avArr[$avArr[0][0]+1][1] = _WinAPI_GetWindowText($hChild)
-	$avArr[$avArr[0][0] + 1][1] = ControlGetText($eep, "", $hChild)
-	ControlSetText($eep, "", $hChild, "child" & $avArr[0][0])
-	;; _WinAPI_GetWindowText($hChild)
-
-	$avArr[0][0] += 1
-	WinListChildren($hChild, $avArr)
-	$hChild = _WinAPI_GetWindow($hChild, $GW_HWNDNEXT)
-	WEnd
-
-	ReDim $avArr[$avArr[0][0] + 1][2]
-	EndFunc   ;==>WinListChildren
-#ce
 
 #include <calldll.au3>
 
@@ -399,7 +374,6 @@ Func ReadEEP($section, $key)
 	Return $val ;
 EndFunc   ;==>ReadEEP
 
-
 Func locateEEP($Version)
 	Switch $Version
 		Case 10
@@ -427,9 +401,18 @@ Func locateEEP($Version)
 		Return False
 	Else
 		$EEPVersionReal = Mod($Version, 100)
+		Local $SVersion = RegRead($EEPSection, "Version")
+		$EEPVersionSub = Mod($SVersion, 256)
 		Return True
 	EndIf
 EndFunc   ;==>locateEEP
+
+Func MouseToCenter()
+	Local $wdim = WinGetPos($eep)
+	Local $xc = $wdim[0] + $wdim[2] / 2
+	Local $yc = $wdim[1] + $wdim[3] / 2
+	MouseMove($xc, $yc, 1)
+EndFunc   ;==>MouseToCenter
 
 ;; Meldungen und andere Texte einlesen
 ;; das ist eine neue Variante, die keine Einzelvariablen sondern ein Array verwendet
@@ -493,6 +476,8 @@ EndSwitch
 If $EEPVersionReal == 0 Then
 	MsgBox(0, $msg_error, MsgH("EEP", "EEP_NOT_FOUND"))
 	Exit 1
+	;;Else
+	;;	MsgBox(0, "Found", $EEPVersionReal & "." & $EEPVersionSub)
 EndIf
 
 $EEPTimeFile = $EEPDir & "\Resourcen\time.eep"
@@ -549,15 +534,10 @@ Global Const $status_ready = ReadEEP("DLG_STANDARD_MESSAGE", "AFX_IDS_IDLEMESSAG
 Global $rasterwarning = StringLeft(ReadEEP("OTHER", "ANLERR1"), 30) ;; Trick: nur 30 Zeichen, um [e] für Enter zu umgehen.
 Global $description = ReadEEP("DLG_DESCRIPTION", "Caption") ;
 
-;MsgBox(1,"description",$description);
-;MsgBox(1,"rasterwarning",$rasterwarning);
-;MsgBox(1,"status_ready",$status_ready);
-
 ;; Text in speedcontrol
 ;; werden für Control-Suche gleich in reguläre Ausdrücke umgewandelt
 Global Const $actualspeed = C2RegExp(ReadEEP("DLG_CONTROL_AUTOMATIC", "IDC_STAT_ISTVELOC"))
 Global Const $targetspeed = C2RegExp(ReadEEP("DLG_CONTROL_AUTOMATIC", "IDC_STAT_SOLLVELOC"))
-;; MsgBox(0,"speed",$actualspeed & " " & $targetspeed)
 
 ;; Texte der Editorliste(ComboBox)
 
@@ -659,14 +639,13 @@ EndFunc   ;==>SetEditorVars
 
 Func SetEditor($edit)
 	Local $ct = 0
+	MsgBox(0, "SetEditor", "Switch to Editor " & $EditorList[$edit], 1)
 	While GetEditor() <> $edit
-		If $ct = 0 Then
-			MsgBox(0, "SetEditor", "Switch to Editor " & $EditorList[$edit], 1)
-		EndIf
 		Sleep(100)
 		$ct += 1
 		If $ct > 5 Then
 			$ct = 0
+			MsgBox(0, "SetEditor", "Switch to Editor " & $EditorList[$edit], 1)
 		EndIf
 	WEnd
 	SetEditorVars($edit)
@@ -709,10 +688,34 @@ Func RightClick()
 	Click(1)
 EndFunc   ;==>RightClick
 
+Func FindWindowBySize($x, $y)
+	Local $hw = 0
+	Local $var = WinList()
+	;; _arraydisplay($var)
+	For $i = 1 To $var[0][0]
+		If BitAND(WinGetState($var[$i][1]), 2) Then
+			Local $title = $var[$i][0]
+			Local $handle = $var[$i][1] ;
+			Local $title3 = StringLower(StringLeft($title, 3))
+			;; Das EEP-Fenster darf nicht weiter abgefragt werden, da es dadurch zerstört wird
+			If $title3 <> "eep" Then
+				Local $size = WinGetClientSize($handle)
+				$var[$i][0] = $title & $size[0]
+				$var[$i][1] = $size[1]
+				If $size[0] == $x And $size[1] == $y Then
+					$hw = $handle ;  found!
+					ExitLoop
+				EndIf
+			EndIf
+		EndIf
+	Next
+	;;_arraydisplay($var)
+	Return $hw
+EndFunc   ;==>FindWindowBySize
+
 Func FindProp1($text1, $text2)
 	;; Search track property window
 	Local $hw = 0
-	;; global $eep
 	Local $var = WinList()
 	;; _arraydisplay($var)
 	For $i = 1 To $var[0][0]
@@ -739,16 +742,42 @@ EndFunc   ;==>FindProp1
 Func FindProp($text1, $text2)
 	;; MsgBox(1,"FindProp",$text1 & "  " & $text2)
 	;; property window open ??
+
 	Local $rc = FindProp1($text1, $text2)
 	If ($rc == 0) Then
 		;; retry with rightclick
 		RightClick()
-		Local $i = 0 ;
-		While ($rc == 0 And $i < 40)
-			Sleep(100)
-			$rc = FindProp1($text1, $text2)
-			$i = $i + 1 ;
-		WEnd
+		If $EEPVersionReal >= 13 And $EEPVersionSub > 0 Then
+			Local $mx = MouseGetPos(0)
+			Local $my = MouseGetPos(1)
+			$i = 0
+			While ($rc == 0 And $i < 40)
+				Sleep(100)
+				$rc = FindWindowBySize(288, 183)
+				$i = $i + 1
+			WEnd
+			If $rc <> 0 Then
+				Local $pos = WinGetPos($rc)
+				MouseClick("left", $pos[0] + 110, $pos[1] + 127)
+
+				$rc = 0
+				$i = 0
+				While ($rc == 0 And $i < 40)
+					Sleep(100)
+					$rc = FindProp1($text1, $text2)
+					$i = $i + 1
+				WEnd
+			EndIf
+			MouseMove($mx, $my, 1)
+		Else
+			$rc = 0
+			$i = 0
+			While ($rc == 0 And $i < 40)
+				Sleep(100)
+				$rc = FindProp1($text1, $text2)
+				$i = $i + 1
+			WEnd
+		EndIf
 	EndIf
 	Return $rc
 EndFunc   ;==>FindProp
@@ -3332,10 +3361,10 @@ Global $keylist[1] = [""]
 Global $keymsglist[1] = [""]
 
 Func HotKeyTargetIsActive()
-	If WinActive($gui)<>0 Then Return True  ; Hugo window is active
-	If WinActive($eep)<>0 Then Return True  ; EEP window is active
-	Return False                            ; neither Hugo nor EEP are active
-EndFunc
+	If WinActive($gui) <> 0 Then Return True ; Hugo window is active
+	If WinActive($eep) <> 0 Then Return True ; EEP window is active
+	Return False ; neither Hugo nor EEP are active
+EndFunc   ;==>HotKeyTargetIsActive
 
 Func HotKeyDispatcher()
 	;; bearbeitet alle Hugo-Hotkeys
@@ -3347,7 +3376,7 @@ Func HotKeyDispatcher()
 				$msg = $keymsglist[$kidx]
 			EndIf
 		EndIf
-	Else  ; pass along the keypress
+	Else ; pass along the keypress
 		HotKeySet(@HotKeyPressed)
 		Send(@HotKeyPressed)
 		HotKeySet(@HotKeyPressed, "HotKeyDispatcher")
@@ -3705,6 +3734,10 @@ Do
 					If $trackCalculated == 1 Then
 						If $trackstatus == 1 Then
 							WinActivate($eep)
+							If $EEPVersionReal >= 13 And $EEPVersionSub >= 1 Then
+								MouseToCenter()
+							EndIf
+
 							For $gnr = $IstGleisAnz - 1 To 0 Step -1
 
 								Local $gleis[$TrackDataLen]
