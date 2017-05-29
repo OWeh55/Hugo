@@ -688,30 +688,38 @@ Func RightClick()
 	Click(1)
 EndFunc   ;==>RightClick
 
-Func FindWindowBySize($x, $y)
+Func FindWindowByPos($x, $y)
 	Local $hw = 0
 	Local $var = WinList()
 	;; _arraydisplay($var)
 	For $i = 1 To $var[0][0]
 		If BitAND(WinGetState($var[$i][1]), 2) Then
-			Local $title = $var[$i][0]
-			Local $handle = $var[$i][1] ;
-			Local $title3 = StringLower(StringLeft($title, 3))
-			;; Das EEP-Fenster darf nicht weiter abgefragt werden, da es dadurch zerstört wird
-			If $title3 <> "eep" Then
-				Local $size = WinGetClientSize($handle)
-				$var[$i][0] = $title & $size[0]
-				$var[$i][1] = $size[1]
-				If $size[0] == $x And $size[1] == $y Then
-					$hw = $handle ;  found!
-					ExitLoop
+		Local $title = $var[$i][0]
+		Local $handle = $var[$i][1] ;
+		If $title == "" Then
+			Local $pos = WinGetPos($handle)
+			Local $xl = $pos[0] - 10
+			Local $xr = $pos[0] + $pos[2] + 10
+			Local $yo = $pos[1] - 10
+			Local $yu = $pos[1] + $pos[3] + 10
+			;; $var[$i][0] = $title & $xl & " " & $xr & " -- " & $x
+			;; $var[$i][1] = $yo & " " & $yu & " -- " & $y
+			;; small window
+			If $pos[2] < 350 And $pos[3] < 250 Then
+				;; (x,y) inside pos
+				If ($x > $xl) And ($x < $xr) Then
+					If ($y > $yo) And ($y < $yu) Then
+						$hw = $handle ;  found!
+						ExitLoop
+					EndIf
 				EndIf
 			EndIf
 		EndIf
+		EndIf
 	Next
-	;;_arraydisplay($var)
+	;;_ArrayDisplay($var)
 	Return $hw
-EndFunc   ;==>FindWindowBySize
+EndFunc   ;==>FindWindowByPos
 
 Func FindProp1($text1, $text2)
 	;; Search track property window
@@ -753,13 +761,14 @@ Func FindProp($text1, $text2)
 			$i = 0
 			While ($rc == 0 And $i < 40)
 				Sleep(100)
-				$rc = FindWindowBySize(288, 183)
+				$rc = FindWindowByPos($mx, $my)
 				$i = $i + 1
 			WEnd
 			If $rc <> 0 Then
 				Local $pos = WinGetPos($rc)
-				MouseClick("left", $pos[0] + 110, $pos[1] + 127)
-
+				;;MouseClick("left", $pos[0] + 110, $pos[1] + 127)
+				MouseClick("left", $pos[0] + 110, $pos[1] + $pos[3]*0.8)
+				;;_ArrayDisplay($pos)
 				$rc = 0
 				$i = 0
 				While ($rc == 0 And $i < 40)
