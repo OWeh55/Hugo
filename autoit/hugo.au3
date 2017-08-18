@@ -49,7 +49,8 @@ Global $Verbindung[$MaxGleise][$TrackDataLen]
 Global $IstGleisAnz ;  // Anzahl der Gleise in Verbindung
 
 ;; Startwerte für Positionen Immobilien
-Global $ImmoPos1[16] = ["", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+;;                             name, posx, posy, posz,
+Global $ImmoPos1[$immoSize] = ["", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 Global $iValid = False
 
 ;; Startwert Verschiebung in x-Richtung
@@ -694,27 +695,25 @@ Func FindWindowByPos($x, $y)
 	;; _arraydisplay($var)
 	For $i = 1 To $var[0][0]
 		If BitAND(WinGetState($var[$i][1]), 2) Then
-		Local $title = $var[$i][0]
-		Local $handle = $var[$i][1] ;
-		If $title == "" Then
-			Local $pos = WinGetPos($handle)
-			Local $xl = $pos[0] - 10
-			Local $xr = $pos[0] + $pos[2] + 10
-			Local $yo = $pos[1] - 10
-			Local $yu = $pos[1] + $pos[3] + 10
-			;; $var[$i][0] = $title & $xl & " " & $xr & " -- " & $x
-			;; $var[$i][1] = $yo & " " & $yu & " -- " & $y
-			;; small window
-			If $pos[2] < 350 And $pos[3] < 250 Then
-				;; (x,y) inside pos
-				If ($x > $xl) And ($x < $xr) Then
-					If ($y > $yo) And ($y < $yu) Then
-						$hw = $handle ;  found!
-						ExitLoop
+			Local $title = $var[$i][0]
+			Local $handle = $var[$i][1] ;
+			If $title == "" Then
+				Local $pos = WinGetPos($handle)
+				Local $xl = $pos[0] - 10
+				Local $xr = $pos[0] + $pos[2] + 10
+				Local $yo = $pos[1] - 10
+				Local $yu = $pos[1] + $pos[3] + 10
+				;; small window
+				If $pos[2] < 350 And $pos[3] < 250 Then
+					;; (x,y) inside pos
+					If ($x > $xl) And ($x < $xr) Then
+						If ($y > $yo) And ($y < $yu) Then
+							$hw = $handle ;  found!
+							ExitLoop
+						EndIf
 					EndIf
 				EndIf
 			EndIf
-		EndIf
 		EndIf
 	Next
 	;;_ArrayDisplay($var)
@@ -747,15 +746,17 @@ Func FindProp1($text1, $text2)
 	Return $hw
 EndFunc   ;==>FindProp1
 
-Func FindProp($text1, $text2)
-	;; MsgBox(1,"FindProp",$text1 & "  " & $text2)
+Func FindProp($text1, $text2, $isTrack)
+	;;MsgBox(1,"FindProp",$text1 & "  " & $text2 & " " & $track_prop_text1 )
 	;; property window open ??
 
 	Local $rc = FindProp1($text1, $text2)
 	If ($rc == 0) Then
 		;; retry with rightclick
 		RightClick()
-		If $EEPVersionReal >= 13 And $EEPVersionSub > 0 Then
+		;; special handling of tracks in eep>13.0
+		If $EEPVersionReal >= 13 And $EEPVersionSub > 0 And $isTrack > 0 Then
+			;; If $EEPVersionReal >= 13 And $EEPVersionSub > 0 Then
 			Local $mx = MouseGetPos(0)
 			Local $my = MouseGetPos(1)
 			$i = 0
@@ -767,7 +768,7 @@ Func FindProp($text1, $text2)
 			If $rc <> 0 Then
 				Local $pos = WinGetPos($rc)
 				;;MouseClick("left", $pos[0] + 110, $pos[1] + 127)
-				MouseClick("left", $pos[0] + 110, $pos[1] + $pos[3]*0.8)
+				MouseClick("left", $pos[0] + 110, $pos[1] + $pos[3] * 0.8)
 				;;_ArrayDisplay($pos)
 				$rc = 0
 				$i = 0
@@ -792,11 +793,11 @@ Func FindProp($text1, $text2)
 EndFunc   ;==>FindProp
 
 Func FindEdit()
-	Return FindProp($track_prop_text1, $track_prop_text2) ;
+	Return FindProp($track_prop_text1, $track_prop_text2, 1) ;
 EndFunc   ;==>FindEdit
 
 Func FindImmo()
-	Return FindProp($immo_prop_text1, $immo_prop_text2) ;
+	Return FindProp($immo_prop_text1, $immo_prop_text2, 0) ;
 EndFunc   ;==>FindImmo
 
 Func AutoOK()
@@ -1111,6 +1112,9 @@ Func MaxCoor(Const ByRef $gleis, $anz)
 	Next
 EndFunc   ;==>MaxCoor
 ; =========================================
+
+Global $theGraph
+
 #include <drawing.au3>
 
 Func Draw1Gleis(Const ByRef $gleis)
@@ -1322,6 +1326,7 @@ Func DrawImmo(ByRef $immopos)
 
 
 	drawPoly3d($pts, $immopos)
+
 
 	GUICtrlSetGraphic($theGraph, $GUI_GR_REFRESH)
 EndFunc   ;==>DrawImmo
@@ -1550,10 +1555,10 @@ EndFunc   ;==>NGNextPos
 	EndFunc
 #Ce
 
-Func OnlyTitle($mtext)
+Func titleOnly($mtext)
 	Local $textarray = StringSplit($mtext, "|")
 	Return $textarray[1]
-EndFunc   ;==>OnlyTitle
+EndFunc   ;==>titleOnly
 
 Func SplitTitle($mtext, ByRef $title, ByRef $tooltip, ByRef $accel)
 	Local $textarray = StringSplit($mtext, "|")
@@ -1805,10 +1810,10 @@ Func NGComboPara(Const ByRef $itext)
 	Local $textparam
 	If $i > 0 Then
 		For $k = 0 To $i - 1
-			$textparam = $textparam & "|" & OnlyTitle($itext[$k])
+			$textparam = $textparam & "|" & titleOnly($itext[$k])
 		Next
 	Else
-		$textparam = OnlyTitle($itext)
+		$textparam = titleOnly($itext)
 	EndIf
 	Return $textparam
 EndFunc   ;==>NGComboPara
@@ -1847,14 +1852,14 @@ Func InputNumber($input, ByRef $val)
 EndFunc   ;==>InputNumber
 
 ;;-----------------------------------------------------------------------------
-;; Grafik funktioniert nicht in tab (!?)
-Global $theGraph
-Global $graphx ;
-Global $graphy ;
-Global $xsize ;
-Global $ysize ;
+
+Global $graphx
+Global $graphy
+Global $xsize
+Global $ysize
 
 Func NGGraphic($where)
+	;; Grafik funktioniert nicht in tab (!?)
 	Local $x1, $x2, $y ;
 	If NGGetPos($where, $x1, $x2, $y) Then
 		Return 0
@@ -1866,9 +1871,9 @@ Func NGGraphic($where)
 	;;	$xsize = $x2 - $x1 - 8
 	$xsize = $x2 - $x1 - 30
 	$ysize = $xsize
+
 	$theGraph = GUICtrlCreateGraphic($graphx, $graphy, $xsize, $ysize) ;
-	;;_ArrayAdd($Labels,$graph)
-	;;	MsgBox(0,"graph","x" & $x1 & "," & $y & " - " & $xsize & "  " & $graph);
+
 	GUICtrlSetBkColor($theGraph, 0xffffff)
 	GUICtrlSetColor($theGraph, 0)
 	NGNextPos($ysize + 5, $where)
@@ -2084,7 +2089,7 @@ Func ReadDefaultShift()
 EndFunc   ;==>ReadDefaultShift
 
 Func mkImmoDataDisplay()
-	Local $handle[7]
+	Local $handle[$immoSize]
 	$handle[0] = NGLabel(".....................", $NG_BOTH) ;
 	$handle[1] = NGLabel(MsgH("ImmoTab", "x") & ": ", $NG_LEFT) ;
 	$handle[4] = NGLabel(MsgH("ImmoTab", "anglex") & ": ", $NG_RIGHT) ;
@@ -4061,6 +4066,7 @@ Do
 
 			Case $tt_delete_route_button
 				MsgBox(0, "Schade", "Noch nicht implementiert")
+
 				;; immobilien tab
 			Case $getposbutton
 				SetTab($ImmoTab)
