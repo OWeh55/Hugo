@@ -1,7 +1,7 @@
 ; constants for hugo
 Global Const $PName = "hugo"
 
-Global Const $Version = "3.2.0"
+Global Const $Version = "3.4.3"
 
 Global Const $MaxGleise = 150
 Global Const $SpeedLogSize = 120
@@ -63,6 +63,8 @@ Global Const $iishadow = 12
 Global Const $iismoke = 13
 Global Const $iifire = 14
 Global Const $iiswim = 15
+
+Global Const $immosize = 16
 
 ; control id for immo_property window
 Global Const $iid_x = 1144

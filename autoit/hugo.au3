@@ -29,6 +29,7 @@ Global $eep_lang
 ;; EEP version - still unknown
 Global $EEPVersionWanted = 0
 Global $EEPVersionReal = 0
+Global $EEPVersionSub = 0
 
 ;; registry section and directory path
 Global $EEPSection = ""
@@ -48,7 +49,8 @@ Global $Verbindung[$MaxGleise][$TrackDataLen]
 Global $IstGleisAnz ;  // Anzahl der Gleise in Verbindung
 
 ;; Startwerte für Positionen Immobilien
-Global $ImmoPos1[16] = ["", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+;;                             name, posx, posy, posz,
+Global $ImmoPos1[$immoSize] = ["", 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 Global $iValid = False
 
 ;; Startwert Verschiebung in x-Richtung
@@ -112,7 +114,6 @@ Global $actionlist
 Global $ScreenSize
 ;; Handler for EEP-Window
 Global $eep
-
 
 Global $TrackTab
 Global $Track2Tab
@@ -207,31 +208,6 @@ Global $clock_reset_button
 Func Inside($winpos, $x, $y)
 	Return $x > $winpos[0] And $x < $winpos[0] + $winpos[2] And $y > $winpos[1] And $y < $winpos[1] + $winpos[3]
 EndFunc   ;==>Inside
-#cs
-	Func WinListChildren($hWnd, ByRef $avArr)
-	If UBound($avArr, 0) <> 2 Then
-	Local $avTmp[10][2] = [[0]]
-	$avArr = $avTmp
-	EndIf
-
-	Local $hChild = _WinAPI_GetWindow($hWnd, $GW_CHILD)
-
-	While $hChild
-	If $avArr[0][0] + 1 > UBound($avArr, 1) - 1 Then ReDim $avArr[$avArr[0][0] + 10][2]
-	$avArr[$avArr[0][0] + 1][0] = $hChild
-	;; $avArr[$avArr[0][0]+1][1] = _WinAPI_GetWindowText($hChild)
-	$avArr[$avArr[0][0] + 1][1] = ControlGetText($eep, "", $hChild)
-	ControlSetText($eep, "", $hChild, "child" & $avArr[0][0])
-	;; _WinAPI_GetWindowText($hChild)
-
-	$avArr[0][0] += 1
-	WinListChildren($hChild, $avArr)
-	$hChild = _WinAPI_GetWindow($hChild, $GW_HWNDNEXT)
-	WEnd
-
-	ReDim $avArr[$avArr[0][0] + 1][2]
-	EndFunc   ;==>WinListChildren
-#ce
 
 #include <calldll.au3>
 
@@ -399,7 +375,6 @@ Func ReadEEP($section, $key)
 	Return $val ;
 EndFunc   ;==>ReadEEP
 
-
 Func locateEEP($Version)
 	Switch $Version
 		Case 10
@@ -427,9 +402,18 @@ Func locateEEP($Version)
 		Return False
 	Else
 		$EEPVersionReal = Mod($Version, 100)
+		Local $SVersion = RegRead($EEPSection, "Version")
+		$EEPVersionSub = Mod($SVersion, 256)
 		Return True
 	EndIf
 EndFunc   ;==>locateEEP
+
+Func MouseToCenter()
+	Local $wdim = WinGetPos($eep)
+	Local $xc = $wdim[0] + $wdim[2] / 2
+	Local $yc = $wdim[1] + $wdim[3] / 2
+	MouseMove($xc, $yc, 1)
+EndFunc   ;==>MouseToCenter
 
 ;; Meldungen und andere Texte einlesen
 ;; das ist eine neue Variante, die keine Einzelvariablen sondern ein Array verwendet
@@ -493,6 +477,8 @@ EndSwitch
 If $EEPVersionReal == 0 Then
 	MsgBox(0, $msg_error, MsgH("EEP", "EEP_NOT_FOUND"))
 	Exit 1
+	;;Else
+	;;	MsgBox(0, "Found", $EEPVersionReal & "." & $EEPVersionSub)
 EndIf
 
 $EEPTimeFile = $EEPDir & "\Resourcen\time.eep"
@@ -549,15 +535,10 @@ Global Const $status_ready = ReadEEP("DLG_STANDARD_MESSAGE", "AFX_IDS_IDLEMESSAG
 Global $rasterwarning = StringLeft(ReadEEP("OTHER", "ANLERR1"), 30) ;; Trick: nur 30 Zeichen, um [e] für Enter zu umgehen.
 Global $description = ReadEEP("DLG_DESCRIPTION", "Caption") ;
 
-;MsgBox(1,"description",$description);
-;MsgBox(1,"rasterwarning",$rasterwarning);
-;MsgBox(1,"status_ready",$status_ready);
-
 ;; Text in speedcontrol
 ;; werden für Control-Suche gleich in reguläre Ausdrücke umgewandelt
 Global Const $actualspeed = C2RegExp(ReadEEP("DLG_CONTROL_AUTOMATIC", "IDC_STAT_ISTVELOC"))
 Global Const $targetspeed = C2RegExp(ReadEEP("DLG_CONTROL_AUTOMATIC", "IDC_STAT_SOLLVELOC"))
-;; MsgBox(0,"speed",$actualspeed & " " & $targetspeed)
 
 ;; Texte der Editorliste(ComboBox)
 
@@ -659,14 +640,13 @@ EndFunc   ;==>SetEditorVars
 
 Func SetEditor($edit)
 	Local $ct = 0
+	MsgBox(0, "SetEditor", "Switch to Editor " & $EditorList[$edit], 1)
 	While GetEditor() <> $edit
-		If $ct = 0 Then
-			MsgBox(0, "SetEditor", "Switch to Editor " & $EditorList[$edit], 1)
-		EndIf
 		Sleep(100)
 		$ct += 1
 		If $ct > 5 Then
 			$ct = 0
+			MsgBox(0, "SetEditor", "Switch to Editor " & $EditorList[$edit], 1)
 		EndIf
 	WEnd
 	SetEditorVars($edit)
@@ -709,10 +689,40 @@ Func RightClick()
 	Click(1)
 EndFunc   ;==>RightClick
 
+Func FindWindowByPos($x, $y)
+	Local $hw = 0
+	Local $var = WinList()
+	;; _arraydisplay($var)
+	For $i = 1 To $var[0][0]
+		If BitAND(WinGetState($var[$i][1]), 2) Then
+			Local $title = $var[$i][0]
+			Local $handle = $var[$i][1] ;
+			If $title == "" Then
+				Local $pos = WinGetPos($handle)
+				Local $xl = $pos[0] - 10
+				Local $xr = $pos[0] + $pos[2] + 10
+				Local $yo = $pos[1] - 10
+				Local $yu = $pos[1] + $pos[3] + 10
+				;; small window
+				If $pos[2] < 350 And $pos[3] < 250 Then
+					;; (x,y) inside pos
+					If ($x > $xl) And ($x < $xr) Then
+						If ($y > $yo) And ($y < $yu) Then
+							$hw = $handle ;  found!
+							ExitLoop
+						EndIf
+					EndIf
+				EndIf
+			EndIf
+		EndIf
+	Next
+	;;_ArrayDisplay($var)
+	Return $hw
+EndFunc   ;==>FindWindowByPos
+
 Func FindProp1($text1, $text2)
 	;; Search track property window
 	Local $hw = 0
-	;; global $eep
 	Local $var = WinList()
 	;; _arraydisplay($var)
 	For $i = 1 To $var[0][0]
@@ -736,29 +746,58 @@ Func FindProp1($text1, $text2)
 	Return $hw
 EndFunc   ;==>FindProp1
 
-Func FindProp($text1, $text2)
-	;; MsgBox(1,"FindProp",$text1 & "  " & $text2)
+Func FindProp($text1, $text2, $isTrack)
+	;;MsgBox(1,"FindProp",$text1 & "  " & $text2 & " " & $track_prop_text1 )
 	;; property window open ??
+
 	Local $rc = FindProp1($text1, $text2)
 	If ($rc == 0) Then
 		;; retry with rightclick
 		RightClick()
-		Local $i = 0 ;
-		While ($rc == 0 And $i < 40)
-			Sleep(100)
-			$rc = FindProp1($text1, $text2)
-			$i = $i + 1 ;
-		WEnd
+		;; special handling of tracks in eep>13.0
+		If $EEPVersionReal >= 13 And $EEPVersionSub > 0 And $isTrack > 0 Then
+			;; If $EEPVersionReal >= 13 And $EEPVersionSub > 0 Then
+			Local $mx = MouseGetPos(0)
+			Local $my = MouseGetPos(1)
+			$i = 0
+			While ($rc == 0 And $i < 40)
+				Sleep(100)
+				$rc = FindWindowByPos($mx, $my)
+				$i = $i + 1
+			WEnd
+			If $rc <> 0 Then
+				Local $pos = WinGetPos($rc)
+				;;MouseClick("left", $pos[0] + 110, $pos[1] + 127)
+				MouseClick("left", $pos[0] + 110, $pos[1] + $pos[3] * 0.8)
+				;;_ArrayDisplay($pos)
+				$rc = 0
+				$i = 0
+				While ($rc == 0 And $i < 40)
+					Sleep(100)
+					$rc = FindProp1($text1, $text2)
+					$i = $i + 1
+				WEnd
+			EndIf
+			MouseMove($mx, $my, 1)
+		Else
+			$rc = 0
+			$i = 0
+			While ($rc == 0 And $i < 40)
+				Sleep(100)
+				$rc = FindProp1($text1, $text2)
+				$i = $i + 1
+			WEnd
+		EndIf
 	EndIf
 	Return $rc
 EndFunc   ;==>FindProp
 
 Func FindEdit()
-	Return FindProp($track_prop_text1, $track_prop_text2) ;
+	Return FindProp($track_prop_text1, $track_prop_text2, 1) ;
 EndFunc   ;==>FindEdit
 
 Func FindImmo()
-	Return FindProp($immo_prop_text1, $immo_prop_text2) ;
+	Return FindProp($immo_prop_text1, $immo_prop_text2, 0) ;
 EndFunc   ;==>FindImmo
 
 Func AutoOK()
@@ -1073,6 +1112,9 @@ Func MaxCoor(Const ByRef $gleis, $anz)
 	Next
 EndFunc   ;==>MaxCoor
 ; =========================================
+
+Global $theGraph
+
 #include <drawing.au3>
 
 Func Draw1Gleis(Const ByRef $gleis)
@@ -1284,6 +1326,7 @@ Func DrawImmo(ByRef $immopos)
 
 
 	drawPoly3d($pts, $immopos)
+
 
 	GUICtrlSetGraphic($theGraph, $GUI_GR_REFRESH)
 EndFunc   ;==>DrawImmo
@@ -1512,10 +1555,10 @@ EndFunc   ;==>NGNextPos
 	EndFunc
 #Ce
 
-Func OnlyTitle($mtext)
+Func titleOnly($mtext)
 	Local $textarray = StringSplit($mtext, "|")
 	Return $textarray[1]
-EndFunc   ;==>OnlyTitle
+EndFunc   ;==>titleOnly
 
 Func SplitTitle($mtext, ByRef $title, ByRef $tooltip, ByRef $accel)
 	Local $textarray = StringSplit($mtext, "|")
@@ -1767,10 +1810,10 @@ Func NGComboPara(Const ByRef $itext)
 	Local $textparam
 	If $i > 0 Then
 		For $k = 0 To $i - 1
-			$textparam = $textparam & "|" & OnlyTitle($itext[$k])
+			$textparam = $textparam & "|" & titleOnly($itext[$k])
 		Next
 	Else
-		$textparam = OnlyTitle($itext)
+		$textparam = titleOnly($itext)
 	EndIf
 	Return $textparam
 EndFunc   ;==>NGComboPara
@@ -1809,14 +1852,14 @@ Func InputNumber($input, ByRef $val)
 EndFunc   ;==>InputNumber
 
 ;;-----------------------------------------------------------------------------
-;; Grafik funktioniert nicht in tab (!?)
-Global $theGraph
-Global $graphx ;
-Global $graphy ;
-Global $xsize ;
-Global $ysize ;
+
+Global $graphx
+Global $graphy
+Global $xsize
+Global $ysize
 
 Func NGGraphic($where)
+	;; Grafik funktioniert nicht in tab (!?)
 	Local $x1, $x2, $y ;
 	If NGGetPos($where, $x1, $x2, $y) Then
 		Return 0
@@ -1828,9 +1871,9 @@ Func NGGraphic($where)
 	;;	$xsize = $x2 - $x1 - 8
 	$xsize = $x2 - $x1 - 30
 	$ysize = $xsize
+
 	$theGraph = GUICtrlCreateGraphic($graphx, $graphy, $xsize, $ysize) ;
-	;;_ArrayAdd($Labels,$graph)
-	;;	MsgBox(0,"graph","x" & $x1 & "," & $y & " - " & $xsize & "  " & $graph);
+
 	GUICtrlSetBkColor($theGraph, 0xffffff)
 	GUICtrlSetColor($theGraph, 0)
 	NGNextPos($ysize + 5, $where)
@@ -2046,7 +2089,7 @@ Func ReadDefaultShift()
 EndFunc   ;==>ReadDefaultShift
 
 Func mkImmoDataDisplay()
-	Local $handle[7]
+	Local $handle[$immoSize]
 	$handle[0] = NGLabel(".....................", $NG_BOTH) ;
 	$handle[1] = NGLabel(MsgH("ImmoTab", "x") & ": ", $NG_LEFT) ;
 	$handle[4] = NGLabel(MsgH("ImmoTab", "anglex") & ": ", $NG_RIGHT) ;
@@ -3331,14 +3374,26 @@ GUISetState(@SW_SHOW)
 Global $keylist[1] = [""]
 Global $keymsglist[1] = [""]
 
+Func HotKeyTargetIsActive()
+	If WinActive($gui) <> 0 Then Return True ; Hugo window is active
+	If WinActive($eep) <> 0 Then Return True ; EEP window is active
+	Return False ; neither Hugo nor EEP are active
+EndFunc   ;==>HotKeyTargetIsActive
+
 Func HotKeyDispatcher()
 	;; bearbeitet alle Hugo-Hotkeys
-	If UBound($keylist) > 0 Then
-		Local $kidx = _ArrayBinarySearch($keylist, @HotKeyPressed)
-		;; MsgBox(0,"HotKey",@HotKeyPressed & " " & $kidx,5)
-		If $kidx >= 0 Then
-			$msg = $keymsglist[$kidx]
+	If HotKeyTargetIsActive() Then
+		If UBound($keylist) > 0 Then
+			Local $kidx = _ArrayBinarySearch($keylist, @HotKeyPressed)
+			;; MsgBox(0,"HotKey",@HotKeyPressed & " " & $kidx,5)
+			If $kidx >= 0 Then
+				$msg = $keymsglist[$kidx]
+			EndIf
 		EndIf
+	Else ; pass along the keypress
+		HotKeySet(@HotKeyPressed)
+		Send(@HotKeyPressed)
+		HotKeySet(@HotKeyPressed, "HotKeyDispatcher")
 	EndIf
 EndFunc   ;==>HotKeyDispatcher
 
@@ -3693,6 +3748,10 @@ Do
 					If $trackCalculated == 1 Then
 						If $trackstatus == 1 Then
 							WinActivate($eep)
+							If $EEPVersionReal >= 13 And $EEPVersionSub >= 1 Then
+								MouseToCenter()
+							EndIf
+
 							For $gnr = $IstGleisAnz - 1 To 0 Step -1
 
 								Local $gleis[$TrackDataLen]
@@ -4007,6 +4066,7 @@ Do
 
 			Case $tt_delete_route_button
 				MsgBox(0, "Schade", "Noch nicht implementiert")
+
 				;; immobilien tab
 			Case $getposbutton
 				SetTab($ImmoTab)
