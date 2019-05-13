@@ -43,6 +43,8 @@ Global $SollGleisAnz = 5 ; // number of tracks
 Global $StartGleis[$TrackDataLen] = [-99, 0, 0, 0, 99, 0.6, 0.6, False, 0, 0, 0]
 
 Global $EndGleis[$TrackDataLen] = [300, -80, -20, 0, 99, 0.6, 0.6, False, 0, 0, 0]
+Global $Startgleisgesetzt = 0
+Global $Endgleisgesetzt = 0
 
 ;; Gleisverbindung
 Global $Verbindung[$MaxGleise][$TrackDataLen]
@@ -3601,60 +3603,62 @@ Do
 
 		;; Berechnung notwendig?
 		If $trackCalculated == 0 Then
+			If $StartGleisgesetzt == 1 And $Endgleisgesetzt == 1 Then
 
-			;; Gleisdaten ungültig
-			GUICtrlSetColor($tistanz, 0xff0000)
-			GUICtrlSetColor($tlen, 0xff0000)
-			GUICtrlSetColor($trad, 0xff0000)
+				;; Gleisdaten ungültig
+				GUICtrlSetColor($tistanz, 0xff0000)
+				GUICtrlSetColor($tlen, 0xff0000)
+				GUICtrlSetColor($trad, 0xff0000)
 
-			GUICtrlSetData($tlen, MsgH("GUI", "Please"))
-			GUICtrlSetData($trad, MsgH("GUI", "Wait"))
+				GUICtrlSetData($tlen, MsgH("GUI", "Please"))
+				GUICtrlSetData($trad, MsgH("GUI", "Wait"))
 
-			$trackstatus = Optimize($StartGleis, $EndGleis, $Verbindung, $mode)
-			;; trackstatus < 0 = Berechnung fehlgeschlagen
+				$trackstatus = Optimize($StartGleis, $EndGleis, $Verbindung, $mode)
+				;; trackstatus < 0 = Berechnung fehlgeschlagen
 
-			$trackCalculated = 1
+				$trackCalculated = 1
 
-			If $trackstatus > 0 Then
-				;; erfolgreiche Berechnung, jetzt test auf Eignung für EEP
-				;; Status 1 = OK
-				;; Status > 1 = Grenzwerte überschritten
-				$trackstatus = isValid($Verbindung)
-			EndIf
-			If $DisplayStat == $TrackDisplay Then
-				$DisplayNeedsRedraw = 1 ; Display als ungültig erklären
-			EndIf
-
-			;; Text-Darstellung
-			If $trackstatus > 0 Then
-				;; es existieren Daten
-				If $trackstatus = 1 Then
-					;; für EEP gültige Gleisdaten1
-					GUICtrlSetColor($tistanz, 0x000000)
-					GUICtrlSetColor($tlen, 0x000000)
-					GUICtrlSetColor($trad, 0x000000)
-				Else
-					GUICtrlSetColor($tistanz, 0xFF8800)
-					GUICtrlSetColor($tlen, 0xFF8800)
-					GUICtrlSetColor($trad, 0xFF8800)
+				If $trackstatus > 0 Then
+					;; erfolgreiche Berechnung, jetzt test auf Eignung für EEP
+					;; Status 1 = OK
+					;; Status > 1 = Grenzwerte überschritten
+					$trackstatus = isValid($Verbindung)
+				EndIf
+				If $DisplayStat == $TrackDisplay Then
+					$DisplayNeedsRedraw = 1 ; Display als ungültig erklären
 				EndIf
 
-				GUICtrlSetData($tistanz, StringFormat(MsgH("Tracktab", "TrackNumber"), $IstGleisAnz))
+				;; Text-Darstellung
+				If $trackstatus > 0 Then
+					;; es existieren Daten
+					If $trackstatus = 1 Then
+						;; für EEP gültige Gleisdaten1
+						GUICtrlSetColor($tistanz, 0x000000)
+						GUICtrlSetColor($tlen, 0x000000)
+						GUICtrlSetColor($trad, 0x000000)
+					Else
+						GUICtrlSetColor($tistanz, 0xFF8800)
+						GUICtrlSetColor($tlen, 0xFF8800)
+						GUICtrlSetColor($trad, 0xFF8800)
+					EndIf
 
-				If $minlen == $maxlen Then
-					GUICtrlSetData($tlen, StringFormat(MsgH("Tracktab", "LengthIs"), $minlen))
+					GUICtrlSetData($tistanz, StringFormat(MsgH("Tracktab", "TrackNumber"), $IstGleisAnz))
+
+					If $minlen == $maxlen Then
+						GUICtrlSetData($tlen, StringFormat(MsgH("Tracktab", "LengthIs"), $minlen))
+					Else
+						GUICtrlSetData($tlen, StringFormat(MsgH("TrackTab", "LengthRange"), $minlen, $maxlen))
+					EndIf
+					GUICtrlSetData($trad, StringFormat(MsgH("TrackTab", "RadiusIs"), $minrad))
+					GUICtrlSetData($txx, StringFormat("X: %5.0f .. %5.0f", $minx, $maxx))
+					GUICtrlSetData($tyy, StringFormat("Y: %5.0f .. %5.0f", $miny, $maxy))
+
 				Else
-					GUICtrlSetData($tlen, StringFormat(MsgH("TrackTab", "LengthRange"), $minlen, $maxlen))
+					;; keine Gleisdaten
+					GUICtrlSetData($tistanz, StringFormat(MsgH("Tracktab", "TrackNumber"), $IstGleisAnz))
+					GUICtrlSetData($tlen, MsgH("Tracktab", "LengthUnknown"))
+					GUICtrlSetData($trad, MsgH("Tracktab", "RadiusUnknown"))
 				EndIf
-				GUICtrlSetData($trad, StringFormat(MsgH("TrackTab", "RadiusIs"), $minrad))
-				GUICtrlSetData($txx, StringFormat("X: %5.0f .. %5.0f", $minx, $maxx))
-				GUICtrlSetData($tyy, StringFormat("Y: %5.0f .. %5.0f", $miny, $maxy))
-
-			Else
-				;; keine Gleisdaten
-				GUICtrlSetData($tistanz, StringFormat(MsgH("Tracktab", "TrackNumber"), $IstGleisAnz))
-				GUICtrlSetData($tlen, MsgH("Tracktab", "LengthUnknown"))
-				GUICtrlSetData($trad, MsgH("Tracktab", "RadiusUnknown"))
 			EndIf
 		EndIf
 
@@ -3730,6 +3734,7 @@ Do
 						showimmodata($immodata, $ImmoPos1) ;
 						$trackCalculated = 0
 						$DisplayNeedsRedraw = 1
+						$StartGleisgesetzt = 1
 					Else
 
 					EndIf
@@ -3761,6 +3766,7 @@ Do
 						GUICtrlSetData($dhinput, $track_shift_h)
 
 						$trackCalculated = 0
+						$Endgleisgesetzt = 1
 					EndIf
 				Else
 					Error(MsgH("EEP", "no_track_editor"))
@@ -3807,6 +3813,8 @@ Do
 									EndIf
 								EndIf
 							Next
+							$StartGleisgesetzt = 0
+							$Endgleisgesetzt = 0
 						Else ;; not valid
 							If $maxlen > 100 Then
 								Error(MsgH("EEP", "track_too_long") & $maxlen & " m!" & @CRLF & MsgH("EEP", "track_too_long2")) ;
