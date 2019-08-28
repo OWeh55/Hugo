@@ -6,10 +6,10 @@
 #include "bogen.h"
 #include "gleis.h"
 
-bogen readtrack(ifstream &is, bool input_format = true);
+bogen readtrack(ifstream &is,bool input_format=true);
 
-void readtracks(const string &fn, gleis &g, bool fill);
+void readtracks(const string &fn,gleis &g,bool fill);
 
-void writetrack(ofstream &of, const bogen &agl, bool extended_format = true);
+void writetrack(ofstream &of,const bogen &agl,bool extended_format=true);
 
 #endif

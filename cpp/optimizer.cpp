@@ -1,471 +1,465 @@
 #include <fstream>
 #include "gleis.h"
 #include "optimizer.h"
-#include "LMSolver.h"
+#include "lmdif.h"
 #include "myex.h"
 
 extern bool verbose;
 
-void UpdateGleisFromAngleVector(const vector<double> &fi, double flen, gleis &g)
+void UpdateGleisFromAngleVector(const Vector &fi,double flen, gleis &g)
 {
-  g.clear();
-  for (unsigned int i = 0; i < fi.size(); i++)
+    g.clear();
+    for (unsigned int i=0; i<fi.size(); i++)
     {
-      g.Append(flen, fi[i]);
+        g.Append(flen,fi[i]);
     }
 }
 
-void UpdateAngleVectorFromGleis(const gleis &g, vector<double> &fi)
+void UpdateAngleVectorFromGleis(const gleis &g,Vector &fi)
 {
-  fi.clear();
-  for (int i = 0; i < g.size(); i++)
+    fi.Clear();
+    for (int i=0; i<g.size(); i++)
     {
-      fi.push_back(g[i].Fi());
+        fi.Append(g[i].Fi());
     }
 }
 
 void Init(gleis &verbindung,
-          const Bogen &start, const Bogen &end,
+          const Bogen &start,const Bogen &end,
           int mode)
 {
-  unsigned int gleise = verbindung.size();
-  if (gleise == 0) gleise = 5;
+    unsigned int gleise=verbindung.size();
+    if (gleise==0) gleise=5;
 
-  verbindung = gleis(start.End());
+    verbindung = gleis(start.End());
 
-  // different modes for initialization
-  switch (mode)
+    // different modes for initialization
+    switch(mode)
     {
     case 0:
     {
-      // gerade Gleise vom Startpunkt in Startrichtung
-      //               e
-      //               |
-      //
-      //
-      //   s------------
-      for (unsigned int i = 0; i < gleise; i++)
-        verbindung.Append(60, 0);
+        // gerade Gleise vom Startpunkt in Startrichtung
+        for (unsigned int i=0; i<gleise; i++)
+            verbindung.Append(60,0);
     }
     break;
 
     case 1:
-      // Gleise bilden einen Kreis-Bogen zum Endpunkt
-      //         e
-      //         |
-      //         |
-      //         /
-      //        /
-      //   s---/
+        // Gleise bilden einen Kreis-Bogen zum Endpunkt
     {
-      Bogen g(start.End(), end.Start());
-      for (unsigned int i = 0; i < gleise; i++)
-        verbindung.Append(g.Len() / gleise, g.Fi() / gleise);
+        Bogen g(start.End(),end.Start());
+        for (unsigned int i=0; i<gleise; i++)
+            verbindung.Append(g.Len()/gleise, g.Fi()/gleise);
     }
     break;
 
     case 2:
-      // "geradlinige" Verbindung: Gleisenden liegen auf einer
-      // Geraden zum Endpunkt
-      //         e
-      //         |
-      //        /
-      //       /
-      //      /
-      //   s-
+        // "geradlinige" Verbindung: Gleisenden liegen auf einer
+        // Geraden zum Endpunkt
     {
-      vector2d dist = end.Start() - start.End();
+        vector2d dist=end.Start()-start.End();
 
-      for (unsigned int i = 0; i < gleise; i++)
-        verbindung.Append(start.End() + dist * ((i + 1.0) / gleise));
+        for (unsigned int i=0; i<gleise; i++)
+            verbindung.Append(start.End()+dist*((i+1.0)/gleise));
     }
     break;
     }
 }
 
-double SQRT(double x)
+class GleisFehler:public LMFunctor
 {
-  if (x>0)
-    return sqrt(x);
-  else
-    return -sqrt(-x);
-}
-
-class GleisFehler: public LMFunctor
-{
-  // Gleis mit n gleich langen Gleisen
-  // Fehlermass für Strecke wählbar mit pmode
-  // 1 - \Delta Curvature
-  // 2 - Curvature
-  // 3 - both
 protected:
-  constexpr static double curvature_change_weight = 1000;//1000;
-  constexpr static double end_point_weight = 1000;
+    static const double curvature_change_weight=1000;
+    static const double end_point_weight=1000;
+    gleis &g;
 
-  Bogen start;
-  Bogen end;
+    double startcurv;
 
-  int nTracks;
-  int mode; // mode of optimization - parameter of error function
+    ray end;
+
+    double endcurv;
+
+    double &len; // length to be optimized
+    Vector &fi; // angles to be optimized
+
+    int mode; // mode of optimization - parameter of error function
 
 public:
-  GleisFehler(const Bogen &startp,
-              const Bogen &endp,
-	      int nTracksp,
-              int pmode):
-    start(startp),
-    end(endp),
-    nTracks(nTracksp),
-    mode(pmode)
-  {
-  };
-
-  virtual int operator()(const vector<double> &x, vector<double> &res) const
-  {
-    gleis g(start.End());
-    //    cout << x[0] << " ";
-    for (unsigned int i = 1; i < x.size(); i++)
-      {
-	// cout << x[i] << " ";
-	g.Append(x[0], x[i]);
-      }
-    //    cout << endl;
-
-    unsigned int resultIndex = 0;
-
-    if ((mode & 1) > 0) // change of curvature
-#if 0
-      {
-        // change from previous track to first track
-	res[resultIndex++] = (SQRT(g[0].Curvature()) - SQRT(start.Curvature())) * curvature_change_weight;
-	// res[resultIndex++] = (g[0].Curvature() - start.Curvature()) * curvature_change_weight;
-
-	// changes between tracks
-	for (int i = 1; i < g.size(); i++)
-	  {
-	    res[resultIndex++] = (SQRT(g[i].Curvature()) - SQRT(g[i - 1].Curvature())) * curvature_change_weight;
-	  }
-
-	// changes from last track to next track
-	res[resultIndex++] = (SQRT(g[g.size() - 1].Curvature()) - SQRT(end.Curvature())) * curvature_change_weight;
-}
-#endif
-	#if 0
-	{
-        // change from previous track to first track
-		res[resultIndex++] = SQRT(g[0].Curvature()-start.Curvature()) * curvature_change_weight;
-
-		// changes between tracks
-		for (int i = 1; i < g.size(); i++)
-		{
-			res[resultIndex++] = SQRT(g[i].Curvature()-g[i - 1].Curvature()) * curvature_change_weight;
-		}
-
-		// changes from last track to next track
-		res[resultIndex++] = SQRT(g[g.size() - 1].Curvature()-end.Curvature()) * curvature_change_weight;
-	}
-#endif
-#if 1
-	{
-        // change from previous track to first track
-		res[resultIndex++] = (g[0].Curvature()-start.Curvature()) * curvature_change_weight;
-
-		// changes between tracks
-		for (int i = 1; i < g.size(); i++)
-		{
-			res[resultIndex++] = (g[i].Curvature()-g[i - 1].Curvature()) * curvature_change_weight;
-		}
-
-		// changes from last track to next track
-		res[resultIndex++] = (g[g.size() - 1].Curvature()-end.Curvature()) * curvature_change_weight;
-	}
-#endif
-
-    if ((mode & 2) > 0) // curvature
-      {
-        for (int i = 0; i < g.size(); i++)
-          {
-			  double temp=g[i].Curvature();
-            res[resultIndex++] = SQRT(temp);
-          }
-      }
-
-    //  of end point (with high weight)
-    res[resultIndex++] = (g.End().x - end.Start().x) * end_point_weight;
-    res[resultIndex++] = (g.End().y - end.Start().y) * end_point_weight;
-    res[resultIndex++] = normal(g.End().Dir() - end.Start().Dir()) * end_point_weight;
-
-    //    for(int i=0;i<res.size();++i)
-    //      cout << res[i] << " " ;
-    //    cout << endl;
-
-    return 0;
-  }
-
-  virtual int getDimension() const
-  {
-    int dim = 3; // endpunkt, richtung
-    if (mode & 1) dim += nTracks + 1;
-    if (mode & 2) dim += nTracks;
-    return dim;
-  }
-};
-
-bool Optimize1(gleis &g, const Bogen &start, const Bogen &end,
-               int mode)
-{
-  Init(g,start,end,1); // Initialisierung als Kreisbogen
-
-  double len = g[0].Len();
-
-  vector<double> f;
-
-  f.push_back(len);
-  for (int i=0;i<g.size();++i)
-    f.push_back(g[i].Fi());
-
-  GleisFehler ff(start, end, g.size(), mode);
-
-  LMSolver opt(ff);
-  opt.setStopConditions(1e-20, 1e-20, 0, 10000000);
-  opt.solve(f);
-
-  int info = opt.getInfo();
-
-  g.clear();
-  for (unsigned int i = 1; i < f.size(); i++)
+    GleisFehler(gleis &gp,const Bogen &startp,
+                const Bogen &endp,
+                double &lenp,Vector &fip,
+                int pmode):
+        g(gp),
+        startcurv(startp.Curvature()),
+        end(endp.Start()),endcurv(endp.Curvature()),
+        len(lenp),fi(fip),
+        mode(pmode)
     {
-      g.Append(f[0], f[i]);
+        Init(g,startp,endp,1);
+        UpdateAngleVectorFromGleis(g,fi);
+    };
+
+    virtual int operator()(Vector &res) const
+    {
+        UpdateGleisFromAngleVector(fi,len,g);
+
+        unsigned int ind=0;
+
+        if ((mode & 1)>0) // change of curvature
+        {
+            // change from previous track to first track
+            res[ind++]=(g[0].Curvature()-startcurv)*curvature_change_weight;
+
+            // changes between tracks
+            for (unsigned int i=1; i<fi.size(); i++)
+            {
+                res[ind++]=(g[i].Curvature()-g[i-1].Curvature())*curvature_change_weight;
+            }
+
+            // changes from last track to next track
+            res[ind++]=(g[g.size()-1].Curvature()-endcurv)*curvature_change_weight;
+        }
+
+        if ((mode & 2)>0) // curvature
+        {
+            for (unsigned int i=0; i<fi.size(); i++)
+            {
+                res[ind++]=g[i].Curvature();
+            }
+        }
+
+        //  of end point (with high weight)
+        res[ind++]=(g.End().x-end.x)*end_point_weight;
+        res[ind++]=(g.End().y-end.y)*end_point_weight;
+        res[ind++]=normal(g.End().Dir()-end.Dir())*end_point_weight;
+
+        return OK;
     }
 
-  // Gleishoehe wird hier nicht behandelt !!
-  return (info > 0) && (info < 5);
+    virtual int funcdim() const {
+        int dim=3; // endpunkt, richtung
+        if (mode & 1) dim+=g.size()+1;
+        if (mode & 2) dim+=g.size();
+        return dim;
+    }
+};
+
+bool Optimize1(gleis &g, const Bogen &start,const Bogen &end,
+               int mode)
+{
+    double len=60;
+    Vector f;
+
+    GleisFehler ff(g,start,end,len,f,mode);
+
+    vector<double*> pz; // variables to optimize (length and angles)
+    pz.push_back(&len); // one length
+
+    for (int i=0; i<g.size(); i++)
+    {
+        pz.push_back(&f[i]); // n angles
+    }
+
+    int inumber;
+    int info=LMDif(pz,ff,10000,inumber);
+
+//  cout << inumber << endl;
+
+    UpdateGleisFromAngleVector(f,len,g);
+
+    // Gleishoehe wird hier nicht behandelt
+
+    return (info>0) && (info<5);
 }
 
-void UpdateGleisFromLengthVector(const vector<double> &len,
-                                 double rad1, double rad2,
+void UpdateGleisFromLengthVector(const Vector &len,
+                                 double rad1,double rad2,
                                  gleis &g)
 {
+    g.clear();
+    if (len[0] > 0)
+        g.Append(len[0],len[0]/rad1);
+    else
+        g.Append(len[0],0);
+    g.Append(len[1],0);
+    if (len[2] > 0)
+        g.Append(len[2],len[2]/rad2);
+    else
+        g.Append(len[2],0);
 }
 
-class GleisFehler2: public LMFunctor
+class GleisFehler2:public LMFunctor
 {
 protected:
-  ray start;
-  ray end;
-  double rad1;
-  double rad2;
+    gleis &g;
+
+    ray end;
+    Vector &length;
+    double rad1;
+    double rad2;
 
 public:
-  GleisFehler2(ray startp, ray endp,
-               double radp1, double radp2):
-    start(startp), end(endp),
-    rad1(radp1), rad2(radp2)
-  {
-  };
+    GleisFehler2(gleis &gp,ray start,ray endp,
+                 Vector &lenp,double radp1,double radp2):
+        g(gp),end(endp),
+        length(lenp),rad1(radp1),rad2(radp2)
+    {
+        vector2d diff=endp - gp.getStart();
+        double phid=diff.Phi();
+        double phi1=normal(phid-start.Dir());
+        double phi2=normal(endp.Dir()-phid);
+        length[0]=fabs(rad1*phi1);
+        length[1]=diff.Len();
+        length[2]=fabs(rad2*phi2);
+        g.setStart(start);
+        UpdateGleisFromLengthVector(length,rad1,rad2,g);
+        //    cout << length << endl;
+    };
 
-  virtual int operator()(const vector<double> &x,vector<double> &res) const
-  {
-    gleis g(start);
-    if (x[0] > 0)
-      g.Append(x[0], x[0] / rad1);
-    else
-      g.Append(x[0], 0);
-    g.Append(x[1], 0);
-    if (x[2] > 0)
-      g.Append(x[2], x[2] / rad2);
-    else
-      g.Append(x[2], 0);
-
-    //  end point
-    res[0] = (g.End().x - end.x);
-    res[1] = (g.End().y - end.y);
-    res[2] = normal(g.End().Dir() - end.Dir())*10;
+    virtual int operator()(Vector &res) const
+    {
+        UpdateGleisFromLengthVector(length,rad1,rad2,g);
+        //  of end point (with high weight)
+        int ind=0;
+        res[ind++]=(g.End().x-end.x);
+        res[ind++]=(g.End().y-end.y);
+        res[ind++]=normal(g.End().Dir()-end.Dir());
 
 #if 0
-    if (verbose)
-      cout << res << endl;
+        if (verbose)
+            cout << res << endl;
 #endif
 
-    return 0;
-  }
+        return OK;
+    }
 
-  virtual int getDimension() const
-  {
-    return 3;
-  }
+    virtual int funcdim() const {
+        int dim=3; // endpunkt, richtung
+        return dim;
+    }
 };
 
 bool Optimize2(gleis &g,
-               const Bogen &start, const Bogen &end,
-               double rad1, double rad2)
+               const Bogen &start,const Bogen &end,
+               double rad1,double rad2)
 {
-  // drei gleise:
-  //    Kreis (rad1)
-  //    Strecke
-  //    Kreis (rad2)
-  // Längen werden optimiert
+    // drei gleise:
+    //    Kreis (rad1)
+    //    Strecke
+    //    Kreis (rad2)
+    // Längen werden optimiert
 
-  GleisFehler2 ff(start.End(), end.Start(), rad1, rad2);
-  LMSolver opt(ff);
+    Vector len(3);
+    GleisFehler2 ff(g,start.End(),end.Start(),len,rad1,rad2);
 
-  vector<double> f(3, 60); // all tracks same length
-  opt.solve(f);
+    vector<double*> pz; // variables to optimize (length)
+    pz.push_back(&len[0]); // first length
+    pz.push_back(&len[1]); // second length
+    pz.push_back(&len[2]); // third length
 
-  int rc = opt.getInfo();
-  if (rc < 1 || rc > 4)
-    return false;
-  if (opt.getErrorValue()>1)
-	  return false;
+    int inumber;
+
+    int rc=LMDif(pz,ff,10000,inumber);
+    if (rc<1 || rc>4)
+        return false;
 #if 0
-  if (verbose)
+    if (verbose)
     {
-      cout << "Versuche: " << inumber << endl;
-      cout << len << endl;
+        cout << "Versuche: " << inumber << endl;
+        cout << len << endl;
     }
 #endif
-  if (f[0] < 1.0 || f[1] < 1.0 || f[2] < 1.0) return false;
-  g.clear();
-  g.setStart(start.End());
-  g.Append(f[0],f[0]/rad1);
-  g.Append(f[1],0);
-  g.Append(f[2],f[2]/rad2);
-  return true;
+    if (len[0]<1.0) return false;
+    if (len[1]<1.0) return false;
+    if (len[2]<1.0) return false;
+    return true;
 }
 
-bool Optimize2(gleis &g, const Bogen &start, const Bogen &end, double rad)
+bool Optimize2(gleis &g, const Bogen &start,const Bogen &end,double rad)
 {
-  if (rad>0)
-  {
-  return (Optimize2(g, start, end, rad, rad)  ||
-		Optimize2(g, start, end, -rad, rad) ||
-		Optimize2(g, start, end, rad, -rad) ||
-		Optimize2(g, start, end, -rad, -rad));
-  }
-  else
-  {
-	  double rad1, rad2;
+    Vector len(3);
 
-	  rad1=start.Rad();
-	  rad2=end.Rad();
+    if (Optimize2(g,start,end,rad,rad)  ||
+            Optimize2(g,start,end,-rad,rad) ||
+            Optimize2(g,start,end,rad,-rad) ||
+            Optimize2(g,start,end,-rad,-rad))
+    {
 
-	  if (rad1 == 0) rad1 = rad2;
-	  if (rad2 == 0) rad2 = rad1;
-	  if (rad2 == 0) return false;
-
-	  return Optimize2(g, start, end, rad1, rad2);
-  }
-
+        // Gleishoehe wird hier nicht behandelt
+        return true;
+    }
+    return false;
 }
 
-class hsegment
-{
+class hsegment {
 private:
-  double h0;
-  double grad0;
-  double len;
-  double dg;
+    double h0;
+    double a0;
+    double len;
+    double k;
 public:
-  hsegment(double h0p, double grad0p,
-           double lenp, double dgp)
-    : h0(h0p), grad0(grad0p), len(lenp), dg(dgp)
-  {};
+    hsegment(double h0p,double a0p,double lenp,double kp)
+        : h0(h0p), a0(a0p), len(lenp), k(kp)
+    {};
+    double operator()(double s) const
+    {
+        //    if (s<0 || s>len)
+        // throw myex("outofrange");
 
-  void last(double &h2, double &a2) const
-  {
-    h2 = h0 + len * tan(grad0 + dg / 2);
-    a2 = grad0 + dg;
-  }
+        return 0.5 * s * s * k + a0 * s + h0;
+    }
+
+    void last(double &h2,double &a2) const {
+        a2 = k * len + a0;
+        h2 = 0.5 * len * len * k + a0 * len + h0;
+    }
 };
 
-class HoehenFehler1: public LMFunctor
+class HoehenFehler1:public LMFunctor
 {
 protected:
-  double len1, len2, len3;
+    double len1;
+    double len2;
+    double len3;
 
-  double a0, a3s;
+    double a0;
+    double a3s;
 
-  double h0, h3s;
+    double h0;
+    double h3s;
+
+    double &k1;
+    double &k3;
 
 public:
-  HoehenFehler1(double len1p, double len2p, double len3p,
-                double a0p, double a3sp,
-                double h0p, double h3sp):
-    len1(len1p), len2(len2p), len3(len3p),
-    a0(a0p), a3s(a3sp),
-    h0(h0p), h3s(h3sp)
-  {
-  };
+    HoehenFehler1(double len1p,double len2p,double len3p,
+                  double a0p,double a3sp,
+                  double h0p, double h3sp,
+                  double &k1p,double &k3p):
+        len1(len1p), len2(len2p), len3(len3p),
+        a0(a0p), a3s(a3sp),
+        h0(h0p), h3s(h3sp),
+        k1(k1p), k3(k3p)
+    {
+    };
 
-  virtual int operator()(const vector<double> &x, vector<double> &res) const
-  {
-    double hn, an;
-    hsegment s1(h0, a0, len1, x[0]);
-    s1.last(hn, an);
-    hsegment s2(hn, an, len2, 0);
-    s2.last(hn, an);
-    hsegment s3(hn, an, len3, x[1]);
-    s3.last(hn, an);
+    virtual int operator()(Vector &res) const
+    {
+        double hn,an;
+        hsegment s1(h0,a0,len1,k1);
+        s1.last(hn,an);
+        hsegment s2(hn,an,len2,0);
+        s2.last(hn,an);
+        hsegment s3(hn,an,len3,k3);
+        s3.last(hn,an);
 
-    res[0] = hn - h3s;
-    res[1] = an - a3s;
+        res[0]=hn-h3s;
+        res[1]=an-a3s;
 
-    return 0;
-  }
+        return OK;
+    }
 
-  virtual int getDimension() const
-  {
-    int dim = 2; // endhoehe, endanstieg
-    return dim;
-  }
+    virtual int funcdim() const {
+        int dim=2; // endhoehe, endanstieg
+        return dim;
+    }
 };
 
 bool OptimizeHoehe1(gleis &g,
                     const Bogen &start,
-                    const Bogen &end)
+                    const Bogen &end,
+                    double trans,double maxshort)
 {
-  int nTracks = g.size();
+    double k1=1;
+    double k3=2;
 
-  double len = g.Len();
+    double len=g.Len();
 
-  double len1 = g[0].Len();
-  double len3 = g[nTracks - 1].Len();
-  double len2 = len - len1 - len3;
-
-  HoehenFehler1 ff(len1, len2, len3,
-                   start.GradEnd(), end.Grad(),
-                   start.H2(), end.H1());
-
-  vector<double> k(2); // variables to optimize ()
-  k[0]=0.0001;
-  k[1]=-0.0001;
-
-  LMSolver lms(ff);
-
-  lms.solve(k);
-  int rc = lms.getInfo();
-  if (rc < 1 || rc > 4)
-    return false;
-
-  double hn, an;
-
-  hsegment s1(start.H2(), start.Grad(), len1, k[0]);
-  s1.last(hn, an);
-  hsegment s2(hn, an, len2, 0);
-  s2.last(hn, an);
-  hsegment s3(hn, an, len3, k[1]);
-  s3.last(hn, an);
-
-  double h = start.H2();
-  double a = start.GradEnd();
-  g[0].setHeights(h, a, k[0]);
-  h = g[0].H2();
-  a = g[0].GradEnd();
-  for (int i = 1; i < g.size() - 1; ++i)
+    double len1=trans;
+    double len3=trans;
+    double len2=len-len1-len3;
+    if (len2<10)
     {
-      g[i].setHeights(h, a, 0);
-      h = g[i].H2();
+        len2=10;
+        len1=(len-len2)/2;
+        len3=(len-len2)/2;
     }
-  g[g.size() - 1].setHeights(h, a, k[1]);
-  return true;
+
+    HoehenFehler1 ff(len1,len2,len3,start.Grad(),end.Grad(),start.H2(),end.H1(),k1,k3);
+
+    vector<double*> pz; // variables to optimize (length)
+    pz.push_back(&k1);
+    pz.push_back(&k3);
+
+    int inumber;
+
+    int rc=LMDif(pz,ff,10000,inumber);
+    if (rc<1 || rc>4)
+        return false;
+
+    double hn,an;
+
+    hsegment s1(start.H2(),start.Grad(),len1,k1);
+    s1.last(hn,an);
+    hsegment s2(hn,an,len2,0);
+    s2.last(hn,an);
+    hsegment s3(hn,an,len3,k3);
+    s3.last(hn,an);
+
+    // anfangs- und end-segment fein unterteilen
+    bool change=true;
+    while (change)
+    {
+        change=false;
+        int idx=0;
+        double alen=0.0;
+
+        while ((!change) && (idx<g.size()))
+        {
+            if (alen<len1 && g[idx].Len()>maxshort)
+            {
+                change=true;
+                g.Divide(idx);
+            }
+            else
+            {
+                alen += g[idx].Len();
+                if (alen>len1+len2 && g[idx].Len()>maxshort)
+                {
+                    change=true;
+                    g.Divide(idx);
+                }
+                else
+                    idx++;
+            }
+        }
+    }
+
+    len=0.0;
+    double h=s1(len);
+    g[0].setH1(h);
+    for (int i=0; i<g.size()-1; i++)
+    {
+        len += g[i].Len(); // aktuelle endposition
+        // welches segment
+        double ll=len;
+        if (ll<=len1)
+        {
+            h=s1(ll);
+        }
+        else
+        {
+            ll-=len1;
+            if (ll<len2)
+                h=s2(ll);
+            else
+                h=s3(ll-len2);
+        }
+        g[i].setH2(h);
+        g[i+1].setH1(h);
+    }
+    // letztes gleis endet am ende des 3.Segmentes
+    h=s3(len3);
+    g[g.size()-1].setH2(h);
+    return true;
 }

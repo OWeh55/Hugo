@@ -5,12 +5,13 @@ Tip=Tipp
 
 [EEP]
 EEP_NOT_FOUND=Kann Eisenbahn.exe nicht finden
-EEP_NOT_SUPPORTED=EEP-Version nicht unterstützt
+EEP6_NOT_FOUND=Kann Version 6 von Eisenbahn.exe nicht finden (Vorgabe in INI-Datei prüfen)
+EEP7_NOT_FOUND=Kann Version 7 von Eisenbahn.exe nicht finden (Vorgabe in INI-Datei prüfen)
+EEP8_NOT_FOUND=Kann Version 8 von Eisenbahn.exe nicht finden (Vorgabe in INI-Datei prüfen)
 EEPX_NOT_FOUND=Kann Version 10 von Eisenbahn.exe nicht finden (Vorgabe in INI-Datei prüfen)
-EEP11_NOT_FOUND=Kann Version 11 von Eisenbahn.exe nicht finden (Vorgabe in INI-Datei prüfen)
 START_BEFORE=Starte EEP vor dem Start von Hugo!
 MANY_EEPS_FOUND=Mehr als eine EEP-Version gefunden, Vorgabe in INI-Datei setzen
-NOT_STARTED=Eisenbahn.exe läuft nicht (Starte EEP und lade Anlage vor Hugo-Start)
+NOT_STARTED=Kann Eisenbahn.exe nicht starten
 EDITOR_NOT_DETECTED=Editor-Control nicht erkannt
 NO_WINDOW=Eigenschaftsfenster nicht gefunden
 NO_TRACK_EDITOR=Kein Fahrweg-Editor aktiv
@@ -70,7 +71,6 @@ Optimization2=Optimierung 2|Optimierung auf geringe Krümmung
 Construction_line_circle=Kreis+Gerade|Konstruktion aus Kreis und Gerade
 Construction_line_circle_line=Gerade+Kreis+Gerade|Konstruktion aus Gerade, Kreis und Gerade
 Construction_circle_line_circle=Kreis+Gerade+Kreis|Konstruktion aus Kreis, Gerade und Kreis
-maxlen=Maximale Gleislänge
 Rad=Radius
 angle=Winkel
 dir=Richtung
@@ -81,6 +81,8 @@ height1=Höhe
 ShiftX=Seitliche Verschiebung|Verschiebung nach rechts ist positiv
 ShiftH=Höhenverschiebung
 Sanft=Sanfte Steigung|Sanfter Übergang auf Steigungen
+Transition=Übergangstrecke|Länge der Strecke des Übergangs zwischen Steigungen
+Short=Kurze Gleislänge|Gleislänge im Übergangsbereich
 TrackNumber=%d Gleise
 TrackNumberUnknown=??? Gleise
 
@@ -102,29 +104,20 @@ Width=Gleisabstand
 
 [ImmoTab]
 GetPos=Position|Objekt vermessen
-x=Pos.X
-y=Pos.Y
-z=Pos.Z
-anglex=Drehung X
-angley=Drehung Y
-anglez=Drehung Z
-DeltaX=d X|X - Verschiebung
-DeltaY=d Y|y - Verschiebung
-DeltaZ=d Z|Vertikale Verschiebung
-North=Nord
-South=Süd
-West=West
-East=Ost
+DeltaX=d X|Horizontale Verschiebung
+DeltaY=d Y|Vertikale Verschiebung
+Right=Rechts
+Left=Links
 Up=Hoch
 Down=Runter
 SetPos=Setzen|Markiertes Objekt setzen
 HightRel=Höhe rel.|Höhe relativ zum Gelände
 AsDefault=als Default|Die Verschiebung als Standardwert für dieses Objekt speichern
-AutoValue=Auto-Wert (Immobilien)|Defaultwerte für Verschiebung laden
+AutoValue=Auto-Wert|Defaultwerte für Verschiebung laden
 
 [TimeTable]
 TimeTable=Fahrplan
-ListHead=-     Bahnhof     -|- an -|- ab -
+ListHead=- Bahnhof -|- an -|- ab -
 editEntry=Eintrag bearbeiten
 station=Bahnhof
 arrival=Ankunft

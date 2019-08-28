@@ -4,13 +4,15 @@
 #include "gleis.h"
 
 bool Optimize1(gleis &g,
-               const Bogen &start, const Bogen &end, // Anschlussbedingungen
-               int mode = 0); // fehlerfunktion
+               const Bogen &start,const Bogen &end, // Anschlussbedingungen
+               int mode=0); // fehlerfunktion
 
 bool Optimize2(gleis &g,
-               const Bogen &start, const Bogen &end,
+               const Bogen &start,const Bogen &end,
                double rad);
 
-bool OptimizeHoehe1(gleis &g, const Bogen &start, const Bogen &end);
+bool OptimizeHoehe1(gleis &g,
+                    const Bogen &start,const Bogen &end,
+                    double trans, double maxshort);
 
 #endif
