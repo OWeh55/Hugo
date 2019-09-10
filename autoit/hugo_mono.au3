@@ -15,7 +15,7 @@ Opt("WinTitleMatchmode", -1)
 ; Konstanten
 Global Const $PName = "hugo"
 
-Global Const $Version = "2.2.3"
+Global Const $Version = "2.2.4"
 
 Global Const $MaxGleise = 150
 Global Const $SpeedLogSize = 120
@@ -1362,12 +1362,14 @@ Func GetTrackData(ByRef $gleis, $delete = False)
         ErgaenzeGleis($gleis)
 
         Send("!A");
-
+            Sleep(100)
         If $delete Then
             WinActivate($eep);
             Sleep(100)
             Send("!E")
+            Sleep(100)
             Send("L");
+            Sleep(100)
         EndIf
 
         Return True;
