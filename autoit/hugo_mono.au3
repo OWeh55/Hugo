@@ -1,3 +1,7 @@
+#Region ;**** Directives created by AutoIt3Wrapper_GUI ****
+#AutoIt3Wrapper_Icon=hugo.ico
+#AutoIt3Wrapper_Outfile=hugo.exe
+#EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 #include <WindowsConstants.au3>
 #include <GUIConstantsEx.au3>
 #include <GuiButton.au3>
@@ -116,10 +120,10 @@ Global Const $SpeedDisplay = 4
 ;; ini-Datei mit Nutzereinstellungen
 Global Const $inifile = @ScriptDir & "\" & $PName & ".ini"
 
-;; gespeicherte Werte für Immobilien...
+;; gespeicherte Werte fÃ¼r Immobilien...
 Global Const $valfile = @ScriptDir & "\" & $PName & ".val"
 
-;; Sprachdatei für Texte in hugo
+;; Sprachdatei fÃ¼r Texte in hugo
 Global Const $langfile = @ScriptDir & "\" & $PName & ".lng"
 
 ;; Sprachdatei von EEP, wird noch ermittelt
@@ -129,7 +133,7 @@ Global $eep_langfile
 Global $hugo_lang
 Global $eep_lang
 
-;; EEP-version - zunächst "unbekannt"
+;; EEP-version - zunÃ¤chst "unbekannt"
 Global $EEPVersion = 0
 
 ;; registry section and directory path
@@ -137,7 +141,7 @@ Global $EEPSection
 Global $EEPDir
 
 ; =============================================================================
-;; werte für Gleis
+;; werte fÃ¼r Gleis
 
 Global $SollGleisAnz = 5; // Startwert soll-gleisanzahl
 
@@ -149,7 +153,7 @@ Global $EndGleis[$TrackDataLen] = [300, -80, -20, 0, 99, 0.6, 0.6, False, 0, 0, 
 Global $Verbindung[$MaxGleise][$TrackDataLen]
 Global $IstGleisAnz;  // Anzahl der Gleise in Verbindung
 
-;; Startwerte für Positionen Immobilien
+;; Startwerte fÃ¼r Positionen Immobilien
 Global $ImmoPos1[10] = ["", 0, 0, 0, 0, 0, 0, 0, 0, 0]
 Global $iValid = False
 
@@ -195,7 +199,7 @@ Global $trackrad = 300
 Global $samft = 0
 
 Global $calculated = False ;; Gleis bereits berechnet ?
-Global $trackstatus = 0 ;; (berechnetes) Gleis zulässig ?
+Global $trackstatus = 0 ;; (berechnetes) Gleis zulÃ¤ssig ?
 Global $track_shift_x = 0 ;; keine Verschiebung
 Global $track_shift_h = 0 ;; keine Verschiebung
 Global $track_trans = 100
@@ -258,7 +262,7 @@ Global $DisplayNeedsRedraw = 0
 
 Global $clockbutton
 
-Global $editor = -77 ; Aktueller Editor (EEP-Nummer): zunächst "nichts"
+Global $editor = -77 ; Aktueller Editor (EEP-Nummer): zunÃ¤chst "nichts"
 Global $trackeditoridx = -1; Aktueller Gleis-Editor (Index in Tabelle der Buttons)
 Global $objeditoridx = -1 ; Aktueller Objekt-Editor
 
@@ -383,7 +387,7 @@ EndFunc   ;==>Shift
 
 ;;
 Func C2RegExp($str)
-    ;; C Formatstring in einen regulären Ausdruck umsetzen
+    ;; C Formatstring in einen regulÃ¤ren Ausdruck umsetzen
     ;; versteht zur zeit %d, %s
     Local $res
     $res = StringRegExpReplace($str, "%[0-9.]*d", "[0-9]*")
@@ -753,7 +757,7 @@ Func LoadOptions()
         $keydefstring &= "^g:getobject|^s:setobject|"
         $keydefstring &= "^f:signal2|^h:signal1|^2:signal3|^t:clock|!h:activatehugo|!e:activateeep"
     Else
-        ;; weitere Definitionen anhängen
+        ;; weitere Definitionen anhÃ¤ngen
         $keydefstring &= "|" & IniRead($inifile, "hotkey", "keydef1", "")
         $keydefstring &= "|" & IniRead($inifile, "hotkey", "keydef2", "")
         $keydefstring &= "|" & IniRead($inifile, "hotkey", "keydef3", "")
@@ -1012,13 +1016,13 @@ Global $ok_window_text2 = ReadEEP("DLG_STANDARD_MESSAGE", "IDS_BESTEHENDE_ANLAGE
 
 ;; MsgBox(1,"windowtext2",$ok_window_text2 & " => " & C2RegExp($ok_window_text2));
 
-;; Dieser text enthält substitionen (%s)
-;; zur Zeit: Nur längsten der festen Textteile nutzen
+;; Dieser text enthÃ¤lt substitionen (%s)
+;; zur Zeit: Nur lÃ¤ngsten der festen Textteile nutzen
 ;; in feste Textteile zerlegen
 
 Dim $harray = StringSplit($ok_window_text2, "%s", 1)
 
-;; längsten text-Teil suchen
+;; lÃ¤ngsten text-Teil suchen
 
 $ok_window_text2 = "";
 For $i = 1 To $harray[0]
@@ -1033,7 +1037,7 @@ Global $rasterwarning;
 Global $description;
 
 If $EEPVersion > 6 Then
-    $rasterwarning = StringLeft(ReadEEP("OTHER", "ANLERR1"), 30);; Trick: nur 30 Zeichen, um [e] für Enter zu umgehen.
+    $rasterwarning = StringLeft(ReadEEP("OTHER", "ANLERR1"), 30);; Trick: nur 30 Zeichen, um [e] fÃ¼r Enter zu umgehen.
     $description = ReadEEP("DLG_DESCRIPTION", "Caption");
 EndIf
 
@@ -1042,7 +1046,7 @@ EndIf
 ;MsgBox(1,"status_ready",$status_ready);
 
 ;; Text in speedcontrol
-;; werden für Control-Suche gleich in reguläre Ausdrücke umgewandelt
+;; werden fÃ¼r Control-Suche gleich in regulÃ¤re AusdrÃ¼cke umgewandelt
 Global Const $actualspeed = C2RegExp(ReadEEP("DLG_CONTROL_AUTOMATIC", "IDC_STAT_ISTVELOC"))
 Global Const $targetspeed = C2RegExp(ReadEEP("DLG_CONTROL_AUTOMATIC", "IDC_STAT_SOLLVELOC"))
 ;; MsgBox(0,"speed",$actualspeed & " " & $targetspeed)
@@ -1135,7 +1139,7 @@ Func SetEditorVars($edit)
             ;; immobilien
             $objeditoridx = 1
             ;;case 4     ;; Noch nicht nutzbar
-            ;; güter
+            ;; gÃ¼ter
             ;; $objeditoridx=2
         Case 6
             ;; Bahn
@@ -1215,7 +1219,7 @@ Func FindProp1($text1, $text2)
             Local $title = $var[$i][0]
             Local $handle = $var[$i][1];
             Local $title3 = StringLower(StringLeft($title, 3))
-            ;; Das EEP-Fenster darf nicht weiter abgefragt werden, da es dadurch zerstört wird
+            ;; Das EEP-Fenster darf nicht weiter abgefragt werden, da es dadurch zerstÃ¶rt wird
             If $title3 <> "eep" Then
                 ;; If $handle <> $eep Then
                 Local $text = WinGetText($handle);
@@ -1331,7 +1335,7 @@ Func SetText($h, $id, $val)
     ;; on some fields ControlSetText needs focus (!?)
     ControlFocus($h, "", $id)
     ControlSetText($h, "", $id, $val)
-    ;; Focus zurückgeben
+    ;; Focus zurÃ¼ckgeben
     ;;ControlFocus($h,"",$ah)
 EndFunc   ;==>SetText
 
@@ -1434,7 +1438,7 @@ Func SetImmoData(ByRef $immo, $rel = True)
         SetText($handle, $iid_fz, $immo[$iifz])
         SetText($handle, $iid_sc, $immo[$iisc])
 
-        ;; abhängige Werte zurücklesen
+        ;; abhÃ¤ngige Werte zurÃ¼cklesen
         If ($rel == False) Then
             $immo[$iizr] = GetNumber($handle, $iid_zr)
         Else
@@ -1450,10 +1454,10 @@ EndFunc   ;==>SetImmoData
 
 Func SetTrack(ByRef $gleis)
 
-    Local $handle = FindEdit() ;; Eigenschaftsfenster öffnen
+    Local $handle = FindEdit() ;; Eigenschaftsfenster Ã¶ffnen
 
     If $handle <> 0 Then
-        ;; Modus Länge + Winkel einstellen
+        ;; Modus LÃ¤nge + Winkel einstellen
         ControlCommand($handle, "", 1289, "SetCurrentSelection", 0)
 
         While ($gleis[$idir] > 360)
@@ -1918,7 +1922,7 @@ Global $NG_YRA = 5;
 
 ;----------- Local helper functions ------------------------
 Func NGGetPos($pos, ByRef $x1, ByRef $x2, ByRef $y)
-    ;; nächste zu verwendende Position
+    ;; nÃ¤chste zu verwendende Position
     Switch ($pos)
         Case $NG_LEFT
             $x1 = $NG_XL1
@@ -1945,7 +1949,7 @@ Func NGGetPos($pos, ByRef $x1, ByRef $x2, ByRef $y)
 EndFunc   ;==>NGGetPos
 
 Func NGNextPos($step, $where)
-    ;; weiterrücken der Position in y-Richtung
+    ;; weiterrÃ¼cken der Position in y-Richtung
     Switch ($where)
         Case $NG_LEFT
             $NG_YLA = $NG_YLA + $step;
@@ -2078,7 +2082,7 @@ Func NGDel($where = $NG_LEFT, $style = $SS_BLACKFRAME, $height = 7)
 EndFunc   ;==>NGDel
 
 Func NGSpace($height = 7, $where = $NG_LEFT)
-    ;; zusätzlicher Zwischenraum
+    ;; zusÃ¤tzlicher Zwischenraum
     Local $x1, $x2, $y;
     If NGGetPos($where, $x1, $x2, $y) Then
         Return 0
@@ -2089,7 +2093,7 @@ EndFunc   ;==>NGSpace
 ;;====================================================================
 Func NGLabel($text, $where = $NG_LEFT, $style = 0, $size = 0)
     Local $x1, $x2, $y, $height;
-    ;; Größenabhängige werte
+    ;; GrÃ¶ÃŸenabhÃ¤ngige werte
     Local $heightt[4] = [15, 30, 45, 60]
     Local $fontt[4] = [8.5, 17, 25.5, 34]
 
@@ -2304,7 +2308,7 @@ Func NGGraphic($where)
 EndFunc   ;==>NGGraphic
 
 Func NGResetGraph(ByRef $graph)
-    ;; Grafik rücksetzen = Löschen und Neuaufbau ermöglichen
+    ;; Grafik rÃ¼cksetzen = LÃ¶schen und Neuaufbau ermÃ¶glichen
     GUICtrlDelete($graph)
     $graph = GUICtrlCreateGraphic($graphx, $graphy, $xsize, $ysize);
     GUICtrlSetBkColor($graph, 0xffffff)
@@ -2566,7 +2570,7 @@ Func showimmodata($handle, ByRef $immo)
     GUICtrlSetData($handle[0], $immo[0]);
     GUICtrlSetData($handle[1], MsgH("Tracktab", "x") & ": " & $immo[$iix]);
     GUICtrlSetData($handle[2], MsgH("Tracktab", "y") & ": " & $immo[$iiy]);
-    GUICtrlSetData($handle[3], MsgH("Tracktab", "angle") & ": " & Round($immo[$iifz], 1) & "°");
+    GUICtrlSetData($handle[3], MsgH("Tracktab", "angle") & ": " & Round($immo[$iifz], 1) & "Â°");
 EndFunc   ;==>showimmodata
 
 ;; display-funktionen
@@ -2584,18 +2588,18 @@ EndFunc   ;==>trackdatadisplay
 Func showtrackdata($handle, $track)
     GUICtrlSetData($handle[0], MsgH("Tracktab", "x") & ": " & $track[$ix]);
     GUICtrlSetData($handle[1], MsgH("Tracktab", "y") & ": " & $track[$iy]);
-    GUICtrlSetData($handle[2], MsgH("Tracktab", "dir") & ": " & Round($track[$idir], 1) & "°");
+    GUICtrlSetData($handle[2], MsgH("Tracktab", "dir") & ": " & Round($track[$idir], 1) & "Â°");
     GUICtrlSetData($handle[3], MsgH("Tracktab", "length") & ": " & $track[$ilen]);
-    GUICtrlSetData($handle[4], MsgH("Tracktab", "angle") & ": " & Round($track[$iangle], 1) & "°");
+    GUICtrlSetData($handle[4], MsgH("Tracktab", "angle") & ": " & Round($track[$iangle], 1) & "Â°");
     GUICtrlSetData($handle[5], MsgH("Tracktab", "height1") & ": " & $track[$ih1]);
 EndFunc   ;==>showtrackdata
 
 Func trackdatastring($track)
     Local $ts = MsgH("Tracktab", "x") & ": " & $track[$ix] & @CRLF
     $ts &= MsgH("Tracktab", "y") & ": " & $track[$iy] & @CRLF
-    $ts &= MsgH("Tracktab", "dir") & ": " & Round($track[$idir], 1) & "°" & @CRLF
+    $ts &= MsgH("Tracktab", "dir") & ": " & Round($track[$idir], 1) & "Â°" & @CRLF
     $ts &= MsgH("Tracktab", "length") & ": " & $track[$ilen] & @CRLF
-    $ts &= MsgH("Tracktab", "angle") & ": " & Round($track[$iangle], 1) & "°" & @CRLF
+    $ts &= MsgH("Tracktab", "angle") & ": " & Round($track[$iangle], 1) & "Â°" & @CRLF
     $ts &= MsgH("Tracktab", "height1") & ": " & $track[$ih1]
     Return $ts
 EndFunc   ;==>trackdatastring
@@ -2626,7 +2630,7 @@ Func ResetFlags()
     SetFlags()
 EndFunc   ;==>ResetFlags
 
-;; Gleisstück  == array[]
+;; GleisstÃ¼ck  == array[]
 ;; Gleis == array[][]
 ;; -------------------------
 Func CopyTrackToArray(ByRef $from, ByRef $to, $toidx = 0)
@@ -2679,8 +2683,8 @@ Func SetLenToNull(ByRef $gleis)
     ErgaenzeGleis($gleis);
 EndFunc   ;==>SetLenToNull
 
-;; Gleisbogen gültig für EEP ?
-;; setzt auch globale Werte für min** und max** ..
+;; Gleisbogen gÃ¼ltig fÃ¼r EEP ?
+;; setzt auch globale Werte fÃ¼r min** und max** ..
 Func isValid(ByRef $gleis)
     Local $valid = 1
     $minlen = $gleis[0][$ilen]
@@ -2805,7 +2809,7 @@ Func SetSContact($h, $setting)
                     EndSwitch
 
                 Case Asc("t")
-                    ;; Verzögerung setzen
+                    ;; VerzÃ¶gerung setzen
                     ControlSetText($h, "", 1492, $val);
                     $val = 0
             EndSwitch
@@ -2855,7 +2859,7 @@ Func SetWContact($h, $setting)
                     EndSwitch
 
                 Case Asc("t")
-                    ;; Verzögerung setzen
+                    ;; VerzÃ¶gerung setzen
                     ControlSetText($h, "", 1463, $val);
                     $val = 0
                 Case Asc("x")
@@ -2902,7 +2906,7 @@ EndFunc   ;==>SetContact
     Func showcombidata($handle)
     GUICtrlSetData($handle[0], MsgH("Tracktab", "x") & ": " & $csx);
     GUICtrlSetData($handle[1], MsgH("Tracktab", "y") & ": " & $csy);
-    GUICtrlSetData($handle[2], MsgH("Tracktab", "angle") & ": " & Round($csdir, 1) & "°");
+    GUICtrlSetData($handle[2], MsgH("Tracktab", "angle") & ": " & Round($csdir, 1) & "Â°");
     EndFunc   ;==>showcombidata
 
     Func XKWTrack(ByRef $gleis, $len, $width, $nr)
@@ -3071,7 +3075,7 @@ Func OpenTimeTable()
         MsgBox(0, "Error", "CommDlgExtendedError (" & @error & "): " & $sError)
     Else
         If $aFile[0] <> 2 Or $aFile[1] == "" Then
-            ;;MsgBox(0, "Error", "Keine Datei ausgewählt", 2)
+            ;;MsgBox(0, "Error", "Keine Datei ausgewÃ¤hlt", 2)
             $FahrplanName = "<undefined>"
         Else
             $FahrplanName = $aFile[1] & "\" & $aFile[2];
@@ -3290,7 +3294,7 @@ Func WritePlan($planname, ByRef $plan)
     FileMove($planname, $planname & "." & 1)
     FileMove($pn, $planname)
 EndFunc   ;==>WritePlan
-;;========== Bearbeitung von Einträgen ==================
+;;========== Bearbeitung von EintrÃ¤gen ==================
 Func InputString($prompt1, $prompt2, ByRef $name)
     Local $newname = InputBox($prompt1, $prompt2, $name)
     If @error <> 0 Then
@@ -3517,7 +3521,7 @@ Local $proc = ProcessList("hugo.exe")
 If $proc[0][0] > 1 Then
     ;; bin ich der erste Prozess ?
     If ($proc[1][1] <> @AutoItPID) Then
-        MsgBox(0, "Instanz existiert", "Hugo läuft schon!", 2);
+        MsgBox(0, "Instanz existiert", "Hugo lÃ¤uft schon!", 2);
         Exit
     EndIf
 EndIf
@@ -3540,7 +3544,7 @@ Func OpenEEP()
     Global $EEPSettingsLastAnl
 
     If WinExists($main_title) Then
-        ;; MsgBox(0, "OK", "Eisenbahn.exe läuft schon", 1)
+        ;; MsgBox(0, "OK", "Eisenbahn.exe lÃ¤uft schon", 1)
         ;; else try to start
     Else
         #cs
@@ -3989,7 +3993,7 @@ Global $shortinput = NGInput(MsgH("Tracktab", "Short"), $track_short, $NG_BOTH)
     $CombiTab = NGCreateTabItem(MsgH("GUI", "TabCombi"));
     ;;#include "g_combi.au3"
 
-    ;; tab für gleiskombinationen
+    ;; tab fÃ¼r gleiskombinationen
     ;; new Buttons... for position, but track handlers are used
     Global $csposbutton = NGButton(MsgH("Combitab", "getpos"), $NG_LEFT)
     Global $csinverse1cb = NGCheckBox(MsgH("Tracktab", "inverse"), $NG_RIGHT, False);
@@ -4030,7 +4034,7 @@ Global $shortinput = NGInput(MsgH("Tracktab", "Short"), $track_short, $NG_BOTH)
 $Track2Tab = NGCreateTabItem(MsgH("GUI", "TabTrack2"));
 ;;#include "g_track2.au3"
 
-;; tab für gleistools 2
+;; tab fÃ¼r gleistools 2
 #cs
     Global $egalinput = NGInput(MsgH("Tracktab", "Height"), 0, $NG_LEFT);
     Global $egalbutton = NGButton(MsgH("Tracktab", "SetHeight"), $NG_LEFT);
@@ -4086,7 +4090,7 @@ $save_as_default_cb = NGCheckBox(MsgH("ImmoTab", "AsDefault"), $NG_RIGHT, False)
 
 $TTTab = NGCreateTabItem(MsgH("GUI", "TabTT"));
 ;;#include "g_timetable.au3"
-;; tab für fahrplan
+;; tab fÃ¼r fahrplan
 
 Local $label = $tt_file
 If StringLen($label) > 35 Then
@@ -4129,7 +4133,7 @@ Global $tt_submenu = 0
 
 $SignalTab = NGCreateTabItem(MsgH("GUI", "TabSignal"));
 ;;#include "g_sign.au3"
-;; tab für signaltool
+;; tab fÃ¼r signaltool
 
 Global $signbutton1 = NGButton($mtext_signal_button1, $NG_BOTH);
 Global $signbutton2 = NGButton($mtext_signal_button2, $NG_BOTH);
@@ -4225,7 +4229,7 @@ GUISetState(@SW_SHOW)
 ;; f_hotkey
 
 ;; Zuordnung Key <-> Msg
-;; autoit kann arrays der Länge 0 nicht anlegen (?), deshalb dummyeintrag
+;; autoit kann arrays der LÃ¤nge 0 nicht anlegen (?), deshalb dummyeintrag
 Global $keylist[1] = [""]
 Global $keymsglist[1] = [""]
 
@@ -4323,7 +4327,7 @@ Global $actionlist[48] = ["clock", _
 
 Local $keydefarray = StringSplit($keydefstring, "|", 2)
 
-;; Sortieren für schnelle Suche mit _ArrayBinarySearch
+;; Sortieren fÃ¼r schnelle Suche mit _ArrayBinarySearch
 _ArraySort($keydefarray)
 
 For $def In $keydefarray
@@ -4345,11 +4349,11 @@ For $def In $keydefarray
                     Warning(MsgH("GUI", "wrongHotkey") & ": " & $def)
                 Else
                     If $keylist[0] = "" Then
-                        ;; erster Eintrag überschreibt dummy
+                        ;; erster Eintrag Ã¼berschreibt dummy
                         $keylist[0] = $keycode
                         $keymsglist[0] = $actionmsglist[$aidx]
                     Else
-                        ;; an Liste anhängen
+                        ;; an Liste anhÃ¤ngen
                         _ArrayAdd($keylist, $keycode)
                         _ArrayAdd($keymsglist, $actionmsglist[$aidx])
                     EndIf
@@ -4373,7 +4377,7 @@ OpenEEP();
 ;; grafic timetable not active
 $gtimetable = $eep
 
-;; Größen an Bildschirm anpassen
+;; GrÃ¶ÃŸen an Bildschirm anpassen
 $ScreenSize = WinGetPos("Program Manager")
 
 If ValidWindowPos($eeppos) Then
@@ -4444,7 +4448,7 @@ Do
                     ;;GUICtrlSetData($lbl_last, $lastspeed)
                     $lastspeed = $actualspeedval
                     ;; speedlog
-                    If $delta_t > 0 And $delta_t < 100 Then ;; sinnvolle Zeitschritte? (100 ist gross mit Rücksicht auf Zeitfaktor in EEP)
+                    If $delta_t > 0 And $delta_t < 100 Then ;; sinnvolle Zeitschritte? (100 ist gross mit RÃ¼cksicht auf Zeitfaktor in EEP)
                         $logcount = $logcount + 1
                         If $logcount >= $LogStep Then
                             $logcount = 0
@@ -4459,7 +4463,7 @@ Do
 
                         EndIf
                     Else
-                        ;; Zeitsprung!!, log löschen
+                        ;; Zeitsprung!!, log lÃ¶schen
                         SpeedlogReset()
                     EndIf
                     $lasttime = $CurrentTime;
@@ -4475,7 +4479,7 @@ Do
         ;; Berechnung notwendig?
         If $calculated = False Then
 
-            ;; Gleisdaten ungültig
+            ;; Gleisdaten ungÃ¼ltig
             GUICtrlSetColor($tistanz, 0xff0000)
             GUICtrlSetColor($tlen, 0xff0000)
             GUICtrlSetColor($trad, 0xff0000)
@@ -4489,20 +4493,20 @@ Do
             $calculated = True
 
             If $trackstatus > 0 Then
-                ;; erfolgreiche Berechnung, jetzt test auf Eignung für EEP
+                ;; erfolgreiche Berechnung, jetzt test auf Eignung fÃ¼r EEP
                 ;; Status 1 = OK
-                ;; Status > 1 = Grenzwerte überschritten
+                ;; Status > 1 = Grenzwerte Ã¼berschritten
                 $trackstatus = isValid($Verbindung)
             EndIf
             If $DisplayStat == $TrackDisplay Then
-                $DisplayNeedsRedraw = 1 ; Display als ungültig erklären
+                $DisplayNeedsRedraw = 1 ; Display als ungÃ¼ltig erklÃ¤ren
             EndIf
 
             ;; Text-Darstellung
             If $trackstatus > 0 Then
                 ;; es existieren Daten
                 If $trackstatus = 1 Then
-                    ;; für EEP gültige Gleisdaten1
+                    ;; fÃ¼r EEP gÃ¼ltige Gleisdaten1
                     GUICtrlSetColor($tistanz, 0x000000)
                     GUICtrlSetColor($tlen, 0x000000)
                     GUICtrlSetColor($trad, 0x000000)
@@ -4597,7 +4601,7 @@ Do
 
                         GUICtrlSetTip($davorbutton, trackdatastring($StartGleis))
 
-                        ;; Verschiebung rücksetzen
+                        ;; Verschiebung rÃ¼cksetzen
                         $track_shift_x = 0
                         $track_shift_h = 0
                         GUICtrlSetData($dxinput, $track_shift_x)
@@ -4649,7 +4653,7 @@ Do
 
                         ResetFlags()
 
-                        ;; Verschiebung rücksetzen
+                        ;; Verschiebung rÃ¼cksetzen
                         $track_shift_x = 0
                         $track_shift_h = 0
                         GUICtrlSetData($dxinput, $track_shift_x)
@@ -4984,11 +4988,11 @@ Do
                     Local $tan
                     Local $tab
                     If GetEntry($tt_plan[$tt_selected_route - 1][2], $tt_plan[$tt_selected_route - 1][3], $selected_item, $station, $tan, $tab) > 0 Then
-                        If MsgBox(4, MsgH("TimeTable", "TimeTable"), "Eintrag >" & $station & "< wirklich löschen?") == 6 Then
+                        If MsgBox(4, MsgH("TimeTable", "TimeTable"), "Eintrag >" & $station & "< wirklich lÃ¶schen?") == 6 Then
                             deleteEntry($tt_plan[$tt_selected_route - 1][2], $tt_plan[$tt_selected_route - 1][3], $selected_item)
                             UpdatePlan($tt_item, $tt_plan, $tt_selected_route, $selected_item - 1)
                             WritePlan($tt_file, $tt_plan)
-                            ;; Auswahl setzen auf nachgerückten Punkt
+                            ;; Auswahl setzen auf nachgerÃ¼ckten Punkt
                             _GUICtrlListView_SetItemSelected($list_tt, $selected_item, 1, 1)
                         EndIf
                     EndIf
@@ -5002,7 +5006,7 @@ Do
                     insertEntry($tt_plan[$tt_selected_route - 1][2], $tt_plan[$tt_selected_route - 1][3], $selected_item)
                     UpdatePlan($tt_item, $tt_plan, $tt_selected_route, $selected_item - 1)
                     WritePlan($tt_file, $tt_plan)
-                    ;; Auswahl setzen auf nachgerückten Punkt
+                    ;; Auswahl setzen auf nachgerÃ¼ckten Punkt
                     _GUICtrlListView_SetItemSelected($list_tt, $selected_item, 1, 1)
                 EndIf
 
@@ -5074,7 +5078,7 @@ Do
                 SetTab($ImmoTab)
                 If $objeditoridx >= 0 Then
                     If $iValid == False Then
-                        Error("Position ungültig");
+                        Error("Position ungÃ¼ltig");
                     Else
                         Local $dx = 0;
                         Local $dy = 0;
