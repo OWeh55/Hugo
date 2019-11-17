@@ -1,7 +1,7 @@
 ; constants for hugo
 Global Const $PName = "hugo"
 
-Global Const $Version = "3.4.4"
+Global Const $Version = "3.5.1"
 
 Global Const $MaxGleise = 150
 Global Const $SpeedLogSize = 120
@@ -35,16 +35,25 @@ Global Const $ifi2 = 15
 
 ; control id for property window of track
 
-Global Const $id_angle = 1352
-Global Const $id_len = 1356
-Global Const $id_x = 1354
-Global Const $id_y = 1359
-Global Const $id_h1 = 1351
-Global Const $id_dir = 1360
-Global Const $id_steigung = 1313
-Global Const $id_bend = 1315
+Global Const $id_angle = 1352	; Winkel(a) --> $gleis[$iangle] bleibt
+Global Const $id_len = 1356 	; Länge(l) --> $gleis[$ilen] bleibt
+Global Const $id_x = 1354		; Pos.X --> $gleis[$ix] bleibt
+Global Const $id_y = 1359		; Pos.Y --> $gleis[$iy] bleibt
+Global Const $id_h1 = 1351		; Abs.H. --> $gleis[$ih1] 1670
+Global Const $id_h16 = 1670     ; Abs.H. --> $gleis[$ih1] EEP16
+Global Const $id_dir = 1360		; Winkel(z) --> $gleis[$idir] bleibt
+Global Const $id_steigung = 1313	; Steigung(m) --> $gleis[$igrad] 1310
+Global Const $id_steigung16 = 1310	; Steigung(m) --> $gleis[$igrad] EEP16
+Global Const $id_bend = 1315	; Biegung(z) --> $gleis[$ibend] bleibt
 
-Global Const $id_parmode = 1289
+Global Const $id_parmode = 1289 ; Auswahl Charakteristik --> wird auf Winkel + Länge + Biegung + Steigung(°) gestellt --> 1. Einrag
+Global Const $id_glmode = 1290 ; 1290 Geistyp --> 3. Eintrag EEP16
+
+; Weitere
+; 1147 Rel.H.
+; 1365 Skalierung
+; 1311 Gleisüberhöhung Anfang
+; 1312 Gleisüberhöhung Ende
 
 ; indexes in object data
 Global Const $iiname = 0
