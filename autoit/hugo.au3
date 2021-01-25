@@ -4414,11 +4414,19 @@ Do
 				$LogStep = 8
 
 			Case $copytimecode
-				;;Local $tc = 'eeptimefile=io.open("' & $EEPTimeFile & '","w")' & @CRLF
-				Local $tc = 'eeptimefile=io.open("time.eep","w")' & @CRLF
-				$tc = $tc & 'eeptimefile:write(EEPTime)' & @CRLF
-				$tc = $tc & 'eeptimefile:close()'
-				ClipPut(StringRegExpReplace($tc, "\\", "\\\\"))
+				If $EEPVersionReal < 15 Then
+					; Local $tc = 'eeptimefile=io.open("' & $EEPTimeFile & '","w")' & @CRLF
+					Local $tc = '    eeptimefile=io.open("time.eep","w")' & @CRLF
+					$tc = $tc & '    eeptimefile:write(EEPTime)' & @CRLF
+					$tc = $tc & '    eeptimefile:close()'
+					ClipPut(StringRegExpReplace($tc, "\\", "\\\\"))
+				Else
+					; Local $tc = 'eeptimefile=io.open("' & $EEPTimeFile & '","w")' & @CRLF
+					Local $tc = '    eeptimefile=io.open("Resourcen\time.eep","w")' & @CRLF
+					$tc = $tc & '    eeptimefile:write(EEPTime)' & @CRLF
+					$tc = $tc & '    eeptimefile:close()'
+					ClipPut(StringRegExpReplace($tc, "\\", "\\\\"))
+				EndIf
 
 			Case $winposbutton
 				Local $pos = WinGetPos($eep)
