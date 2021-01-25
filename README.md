@@ -15,4 +15,5 @@ Hugo ist ein Werkzeug für die Eisenbahnsimulation EEP
 Wenn Sie nur am ausführbaren Programm interessiert sind, können
 Sie diese im [release Verzeichnis]
 (https://github.com/OWeh55/Hugo/tree/master/release) herunterladen.
-Anleitungen und Hilfe unter http://hera.inf-cv.uni-jena.de/pindex.php/d/noo/eep/hugo.html
+Anleitungen und Hilfe unter http://hera.inf-cv.uni-jena.de/pindex.php/d/noo/eep/hugo.html 
+(Diese Seite ist nicht mehr zu erreichen)
