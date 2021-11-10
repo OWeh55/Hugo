@@ -407,6 +407,10 @@ Func locateEEP($Version)
 			$EEPSection = "HKEY_LOCAL_MACHINE64\SOFTWARE\Trend\EEP 16.00\EEXP"
 		Case 116
 			$EEPSection = "HKEY_LOCAL_MACHINE\SOFTWARE\Trend\EEP 16.00\EEXP"
+		Case 17
+			$EEPSection = "HKEY_LOCAL_MACHINE64\SOFTWARE\Trend\EEP 17.00\EEXP"
+		Case 117
+			$EEPSection = "HKEY_LOCAL_MACHINE\SOFTWARE\Trend\EEP 17.00\EEXP"
 	EndSwitch
 	$EEPDir = RegRead($EEPSection, "Directory")
 	;;MsgBox(0,"DIR",$EEPDir)
@@ -453,20 +457,24 @@ $EEPVersionReal = 0
 
 Switch $EEPVersionWanted
 	Case 0 ;; check all
-		If Not locateEEP(16) Then
-			If Not locateEEP(116) Then
-				If Not locateEEP(15) Then
-					If Not locateEEP(115) Then
-						If Not locateEEP(14) Then
-							If Not locateEEP(114) Then
-								If Not locateEEP(13) Then
-									If Not locateEEP(113) Then
-										If Not locateEEP(12) Then
-											If Not locateEEP(112) Then
-												If Not locateEEP(11) Then
-													If Not locateEEP(111) Then
-														If Not locateEEP(10) Then
-															locateEEP(110)
+		If Not locateEEP(17) Then
+			If Not locateEEP(117) Then
+				If Not locateEEP(16) Then
+					If Not locateEEP(116) Then
+						If Not locateEEP(15) Then
+							If Not locateEEP(115) Then
+								If Not locateEEP(14) Then
+									If Not locateEEP(114) Then
+										If Not locateEEP(13) Then
+											If Not locateEEP(113) Then
+												If Not locateEEP(12) Then
+													If Not locateEEP(112) Then
+														If Not locateEEP(11) Then
+															If Not locateEEP(111) Then
+																If Not locateEEP(10) Then
+																	locateEEP(110)
+																EndIf
+															EndIf
 														EndIf
 													EndIf
 												EndIf
@@ -507,6 +515,10 @@ Switch $EEPVersionWanted
 	Case 16
 		If Not locateEEP(16) Then
 			locateEEP(116)
+		EndIf
+	Case 17
+		If Not locateEEP(17) Then
+			locateEEP(117)
 		EndIf
 	Case Else
 		FatalError("Version " & $EEPVersionWanted & " nicht unterstützt")
@@ -624,8 +636,8 @@ Func GetEditor()
 	Local $sel = -1 ; not found yet
 
 	Local $selectstring ;
-	;; MsgBox(1,"Selectstring", $Button[0][$bid_switch])	
-	;; MsgBox(1,"Selectstring",ControlCommand($eep, "", $Button[0][$bid_switch], "isVisible"))	
+	;; MsgBox(1,"Selectstring", $Button[0][$bid_switch])
+	;; MsgBox(1,"Selectstring",ControlCommand($eep, "", $Button[0][$bid_switch], "isVisible"))
 	;; MsgBox(1,"Selectstring", $Button[1][$bid_switch])
 	;; MsgBox(1,"Selectstring", ControlCommand($eep, "", $Button[1][$bid_switch], "isVisible"))
 	If ControlCommand($eep, "", $Button[0][$bid_switch], "isVisible") Then
@@ -651,7 +663,7 @@ Func GetEditor()
 	EndIf
 	;; MsgBox(1,"Selectstring", $selectstring)
 	;; MsgBox(1,"Selectstring", $sel)
-	
+
 	Return $sel ;
 EndFunc   ;==>GetEditor
 
@@ -952,7 +964,7 @@ Func GetTrackData(ByRef $gleis, $delete = False)
 			ControlCommand($handle, "", $id_parmode, "SetCurrentSelection", 0) ;--> ändern
 			$gleis[$igrad] = GetNumber($handle, $id_steigung16)
 			$gleis[$ih1] = GetNumber($handle, $id_h16)
-		
+
 		EndIf
 		$gleis[$iangle] = GetNumber($handle, $id_angle)
 		$gleis[$ilen] = GetNumber($handle, $id_len)
@@ -1100,7 +1112,7 @@ Func SetTrack(ByRef $gleis)
 			ControlCommand($handle, "", $id_parmode, "SetCurrentSelection", 0) ;--> ändern
 		SetText($handle, $id_steigung16, $gleis[$igrad])
 		SetText($handle, $id_h16, $gleis[$ih1])
-		
+
 		EndIf
 
 		While ($gleis[$idir] > 360)
@@ -1143,7 +1155,7 @@ Func PutTrack(ByRef $gleis, $typ)
 	EndIf
 	If $typ == 1 Then
 		;;ControlClick($eep, "", 1033) ;; Gleis
-	
+
 		 ControlClick($eep, "", $Button[$trackeditoridx][$bid_track]) ;; Gleis
 	ElseIf $typ == 2 Then
 		ControlClick($eep, "", $Button[$trackeditoridx][$bid_switch]) ;; Weiche
@@ -3055,7 +3067,7 @@ Func OpenEEP()
 					;;_ArrayDisplay($pos)
 					If $EditorHnd[$eid_track] == 0 Then
 						$EditorHnd[$eid_track] = $parent
-					Else 
+					Else
 						$EditorHnd[$eid_tram] = $parent
 					EndIf
 				Else
@@ -3108,7 +3120,7 @@ Func OpenEEP()
 					Switch $id
 						Case 1033 ; Gleis ok
 							$Button[0][$bid_track] = $hnd;
-						Case 1132 ; 3-W-Weiche ok 
+						Case 1132 ; 3-W-Weiche ok
 							$Button[0][$bid_switch3] = $hnd
 						Case 1034 ; 2-W-Weiche ok
 							$Button[0][$bid_switch] = $hnd
@@ -3886,7 +3898,7 @@ Do
 									Else
 										ControlClick($eep, "", $Button[$trackeditoridx][$bid_copy]) ; kopieren!
 										Sleep(200)
-								
+
 									EndIf
 									If $level == True Then
 										ControlClick($eep, "", $Button[$trackeditoridx][$bid_level]) ; planieren !
