@@ -1,5 +1,6 @@
 #Region ;**** Directives created by AutoIt3Wrapper_GUI ****
 #AutoIt3Wrapper_Icon=hugo.ico
+#AutoIt3Wrapper_UseX64=n
 #AutoIt3Wrapper_Res_Language=1031
 #EndRegion ;**** Directives created by AutoIt3Wrapper_GUI ****
 
@@ -766,7 +767,7 @@ Func FindWindowByPos($x, $y)
 				Local $yo = $pos[1] - 10
 				Local $yu = $pos[1] + $pos[3] + 10
 				;; small window
-				If $pos[2] < 350 And $pos[3] < 250 Then
+				If $pos[2] < 350 And $pos[3] < 270 Then
 					;; (x,y) inside pos
 					If ($x > $xl) And ($x < $xr) Then
 						If ($y > $yo) And ($y < $yu) Then
@@ -827,10 +828,17 @@ Func FindProp($text1, $text2, $isTrack)
 				$rc = FindWindowByPos($mx, $my)
 				$i = $i + 1
 			WEnd
+
 			If $rc <> 0 Then
 				Local $pos = WinGetPos($rc)
-				;;MouseClick("left", $pos[0] + 110, $pos[1] + 127)
-				MouseClick("left", $pos[0] + 110, $pos[1] + $pos[3] * 0.8)
+				
+				
+				If (($EEPVersionReal == 17 And FileExists($EEPDir & "\Plugin1.dat"))) Then
+				; MouseClick("left", $pos[0] + 110, $pos[1] + 127)
+					MouseClick("left", $pos[0] + 110, $pos[1] + $pos[3] * 0.85)
+				Else
+					MouseClick("left", $pos[0] + 110, $pos[1] + $pos[3] * 0.8)
+				EndIf 
 				;;_ArrayDisplay($pos)
 				$rc = 0
 				$i = 0
