@@ -412,6 +412,10 @@ Func locateEEP($Version)
 			$EEPSection = "HKEY_LOCAL_MACHINE64\SOFTWARE\Trend\EEP 17.00\EEXP"
 		Case 117
 			$EEPSection = "HKEY_LOCAL_MACHINE\SOFTWARE\Trend\EEP 17.00\EEXP"
+		Case 18
+			$EEPSection = "HKEY_LOCAL_MACHINE64\SOFTWARE\Trend\EEP 18.00\EEXP"
+		Case 118
+			$EEPSection = "HKEY_LOCAL_MACHINE\SOFTWARE\Trend\EEP 18.00\EEXP"
 	EndSwitch
 	$EEPDir = RegRead($EEPSection, "Directory")
 	;;MsgBox(0,"DIR",$EEPDir)
@@ -458,22 +462,26 @@ $EEPVersionReal = 0
 
 Switch $EEPVersionWanted
 	Case 0 ;; check all
-		If Not locateEEP(17) Then
-			If Not locateEEP(117) Then
-				If Not locateEEP(16) Then
-					If Not locateEEP(116) Then
-						If Not locateEEP(15) Then
-							If Not locateEEP(115) Then
-								If Not locateEEP(14) Then
-									If Not locateEEP(114) Then
-										If Not locateEEP(13) Then
-											If Not locateEEP(113) Then
-												If Not locateEEP(12) Then
-													If Not locateEEP(112) Then
-														If Not locateEEP(11) Then
-															If Not locateEEP(111) Then
-																If Not locateEEP(10) Then
-																	locateEEP(110)
+		If Not locateEEP(18) Then
+			If Not locateEEP(118) Then
+				If Not locateEEP(17) Then
+					If Not locateEEP(117) Then
+						If Not locateEEP(16) Then
+							If Not locateEEP(116) Then
+								If Not locateEEP(15) Then
+									If Not locateEEP(115) Then
+										If Not locateEEP(14) Then
+											If Not locateEEP(114) Then
+												If Not locateEEP(13) Then
+													If Not locateEEP(113) Then
+														If Not locateEEP(12) Then
+															If Not locateEEP(112) Then
+																If Not locateEEP(11) Then
+																	If Not locateEEP(111) Then
+																		If Not locateEEP(10) Then
+																			locateEEP(110)
+																		EndIf
+																	EndIf
 																EndIf
 															EndIf
 														EndIf
@@ -520,6 +528,10 @@ Switch $EEPVersionWanted
 	Case 17
 		If Not locateEEP(17) Then
 			locateEEP(117)
+		EndIf
+	Case 18
+		If Not locateEEP(18) Then
+			locateEEP(118)
 		EndIf
 	Case Else
 		FatalError("Version " & $EEPVersionWanted & " nicht unterstützt")
@@ -696,8 +708,8 @@ Func SetEditorVars($edit)
 			;; Wasser/Luft
 			$trackeditoridx = $eid_water ;
 	EndSwitch
-		 ;; MsgBox(1, "Editoren", "Alt:" & $OldEditor & "  neu:" & $editor)
-		 ;; MsgBox(1, "Editoren", $trackeditoridx)
+		;;  MsgBox(1, "Editoren", "Alt:" & $OldEditor & "  neu:" & $editor)
+		;;  MsgBox(1, "Editoren", $trackeditoridx)
 
 EndFunc   ;==>SetEditorVars
 
@@ -767,7 +779,7 @@ Func FindWindowByPos($x, $y)
 				Local $yo = $pos[1] - 10
 				Local $yu = $pos[1] + $pos[3] + 10
 				;; small window
-				If $pos[2] < 350 And $pos[3] < 270 Then
+				If $pos[2] < 350 And $pos[3] < 290 Then
 					;; (x,y) inside pos
 					If ($x > $xl) And ($x < $xr) Then
 						If ($y > $yo) And ($y < $yu) Then
@@ -831,14 +843,16 @@ Func FindProp($text1, $text2, $isTrack)
 
 			If $rc <> 0 Then
 				Local $pos = WinGetPos($rc)
-				
-				
+
+
 				If (($EEPVersionReal == 17 And FileExists($EEPDir & "\Plugin1.dat"))) Then
 				; MouseClick("left", $pos[0] + 110, $pos[1] + 127)
 					MouseClick("left", $pos[0] + 110, $pos[1] + $pos[3] * 0.85)
+				ElseIf ($EEPVersionReal == 18) Then
+					MouseClick("left", $pos[0] + 110, $pos[1] + $pos[3] * 0.8)
 				Else
 					MouseClick("left", $pos[0] + 110, $pos[1] + $pos[3] * 0.8)
-				EndIf 
+				EndIf
 				;;_ArrayDisplay($pos)
 				$rc = 0
 				$i = 0
@@ -3070,7 +3084,7 @@ Func OpenEEP()
 			$parent = _WinAPI_GetAncestor($hnd, $GA_PARENT)
 
 			If $idtext == "1033-WZ_GLEIS" Then
-				If  $EEPVersionReal >= 16 Then
+				If  $EEPVersionReal >= 16  Then
 					;;local $pos = ControlGetPos($eep, "", $hnd)
 					;;_ArrayDisplay($pos)
 					If $EditorHnd[$eid_track] == 0 Then
@@ -3082,7 +3096,17 @@ Func OpenEEP()
 					$EditorHnd[$eid_track] = $parent
 				EndIf
 			ElseIf $idtext == "1033-WZ_GLEIS_NEW" Then
-				$EditorHnd[$eid_track] = $parent
+				If  $EEPVersionReal >= 18  Then
+					;;local $pos = ControlGetPos($eep, "", $hnd)
+					;;_ArrayDisplay($pos)
+					If $EditorHnd[$eid_track] == 0 Then
+						$EditorHnd[$eid_track] = $parent
+					Else
+						$EditorHnd[$eid_tram] = $parent
+					EndIf
+				Else
+					$EditorHnd[$eid_track] = $parent
+				EndIf
 			ElseIf $idtext == "1033-WZ_WASSERWEG_GLEIS" Then
 				$EditorHnd[$eid_water] = $parent
 			ElseIf $idtext == "1035-WZ_STRASSE" or $idtext == "1033-WZ_STRASSE" Then
@@ -3301,10 +3325,12 @@ NGSpace(5, $NG_LEFT)
 Global $PutTrackButton = NGButton(MsgH("TrackTab", "PutTracks"), $NG_LEFT) ;
 
 Global $levelcb = NGCheckBox(MsgH("Tracktab", "Levelling"), $NG_RIGHT, $level) ;
-Global $copycb = NGCheckBox(MsgH("Tracktab", "2tracks"), $NG_RIGHT, $copy) ;
+if $EEPVersionReal < 18 then
+	Global $copycb = NGCheckBox(MsgH("Tracktab", "2tracks"), $NG_RIGHT, $copy) ;
 
-Global $dxinput = NGInput(MsgH("Tracktab", "ShiftX"), $track_shift_x, $NG_BOTH) ;
-Global $dhinput = NGInput(MsgH("Tracktab", "ShiftH"), $track_shift_h, $NG_BOTH) ;
+	Global $dxinput = NGInput(MsgH("Tracktab", "ShiftX"), $track_shift_x, $NG_BOTH) ;
+	Global $dhinput = NGInput(MsgH("Tracktab", "ShiftH"), $track_shift_h, $NG_BOTH) ;
+EndIf
 Global $samftcb = NGCheckBox(MsgH("Tracktab", "Sanft"), $NG_BOTH, $samft)
 
 $Track2Tab = NGCreateTabItem(MsgH("GUI", "TabTrack2")) ;
@@ -3895,10 +3921,10 @@ Do
 									Sleep(200)
 								EndIf
 
-								If $copy == True Then
+								If $copy == True and $EEPVersionReal < 18 Then
 									;; "Check" wirkt als Umschalter und wechselt ständig. Muss manuell aktiviert/deaktiviert Werden
 									;; ControlCommand($eep, "", $Button[$trackeditoridx][$bid_inv], "check"); umkehren
-									;; MsgBox(0,"PutTrack","invers" & ControlCommand($eep,"",$Button[$trackeditoridx][$bid_inv], "IsChecked"));
+ 									;; MsgBox(0,"PutTrack","invers" & ControlCommand($eep,"",$Button[$trackeditoridx][$bid_inv], "IsChecked"));
 									If $EEPVersionReal < 16 Then
 										ControlClick($eep, "", $Button[$trackeditoridx][$bid_left]) ; links
 										ControlClick($eep, "", $Button[$trackeditoridx][$bid_copy]) ; kopieren!

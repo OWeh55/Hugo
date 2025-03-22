@@ -1,7 +1,7 @@
 ; constants for hugo
 Global Const $PName = "hugo"
 
-Global Const $Version = "3.5.4"
+Global Const $Version = "3.5.5"
 
 Global Const $MaxGleise = 150
 Global Const $SpeedLogSize = 120
