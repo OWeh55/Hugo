@@ -779,7 +779,7 @@ Func FindWindowByPos($x, $y)
 				Local $yo = $pos[1] - 10
 				Local $yu = $pos[1] + $pos[3] + 10
 				;; small window
-				If $pos[2] < 350 And $pos[3] < 290 Then
+				If $pos[2] < 350 And $pos[3] < 310 Then
 					;; (x,y) inside pos
 					If ($x > $xl) And ($x < $xr) Then
 						If ($y > $yo) And ($y < $yu) Then
@@ -849,7 +849,8 @@ Func FindProp($text1, $text2, $isTrack)
 				; MouseClick("left", $pos[0] + 110, $pos[1] + 127)
 					MouseClick("left", $pos[0] + 110, $pos[1] + $pos[3] * 0.85)
 				ElseIf ($EEPVersionReal == 18) Then
-					MouseClick("left", $pos[0] + 110, $pos[1] + $pos[3] * 0.8)
+				;	MouseClick("left", $pos[0] + 110, $pos[1] + $pos[3] * 0.76)
+					MouseClick("left", $pos[0] + 110, $pos[1] + 226)
 				Else
 					MouseClick("left", $pos[0] + 110, $pos[1] + $pos[3] * 0.8)
 				EndIf
